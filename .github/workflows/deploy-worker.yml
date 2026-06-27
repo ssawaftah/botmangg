@@ -3,7 +3,7 @@ name: Deploy Worker to Cloudflare
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:   # يسمح بالتشغيل اليدوي
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,8 +12,18 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 20        # الإصدار الصحيح
+          node-version: 20
       - run: npm install -g wrangler
+
+      # ✨ خطوة جديدة: حذف الـ Worker القديم (إن وُجد)
+      - name: Delete old Worker (if exists)
+        run: npx wrangler delete bottt --yes
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        continue-on-error: true   # يستمر حتى لو كان محذوفاً أصلاً
+
+      # ثم النشر المعتاد
       - name: Deploy Worker
         run: cd worker && npx wrangler deploy
         env:
