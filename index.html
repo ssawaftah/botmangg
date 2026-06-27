@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة القنوات</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+    .channel-list { margin: 20px 0; }
+    .channel-item {
+      background: #fff; padding: 15px; margin: 10px 0; border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer;
+    }
+    .actions { display: none; margin-top: 15px; }
+    .actions button { margin: 5px; padding: 8px 15px; }
+    #post-form { display: none; margin-top: 20px; background: #fff; padding: 20px; border-radius: 10px; }
+    input, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+    .btn { background: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h2>قنواتي</h2>
+  <div id="channel-container" class="channel-list"></div>
+  <button class="btn" onclick="showAddChannel()">➕ إضافة قناة</button>
+  <div id="add-channel-form" style="display:none; margin-top:10px;">
+    <input type="text" id="new-channel" placeholder="@username">
+    <button class="btn" onclick="addChannel()">إضافة</button>
+    <button onclick="hideAddChannel()">إلغاء</button>
+  </div>
+
+  <div id="post-form">
+    <h3>نشر في: <span id="selected-channel"></span></h3>
+    <textarea id="post-text" rows="4" placeholder="نص المنشور"></textarea>
+    <input type="text" id="btn-name" placeholder="اسم الزر">
+    <input type="text" id="btn-url" placeholder="رابط الزر">
+    <input type="text" id="btn-icon" placeholder="إيموجي (اختياري)">
+    <button class="btn" onclick="publishPost()">📤 نشر</button>
+    <button onclick="hidePostForm()">إلغاء</button>
+  </div>
+
+  <script>
+    // ⚠️ استبدل هذا الرابط برابط الـ Worker الخاص بك
+    const API_BASE = 'https://mangerchannel.izubex.workers.dev';
+
+    let selectedChatId = null;
+
+    async function loadChannels() {
+      const res = await fetch(`${API_BASE}/channels`);
+      const channels = await res.json();
+      const container = document.getElementById('channel-container');
+      container.innerHTML = '';
+      channels.forEach(ch => {
+        const div = document.createElement('div');
+        div.className = 'channel-item';
+        div.innerHTML = `<strong>${ch.title}</strong> (@${ch.username})`;
+        div.onclick = () => selectChannel(ch);
+        container.appendChild(div);
+      });
+    }
+
+    function selectChannel(channel) {
+      selectedChatId = channel.chat_id;
+      document.getElementById('selected-channel').innerText = channel.title;
+      document.getElementById('post-form').style.display = 'block';
+      hideAddChannel();
+    }
+
+    function hidePostForm() {
+      document.getElementById('post-form').style.display = 'none';
+    }
+
+    async function publishPost() {
+      const text = document.getElementById('post-text').value;
+      const btn_name = document.getElementById('btn-name').value;
+      const btn_url = document.getElementById('btn-url').value;
+      const btn_icon = document.getElementById('btn-icon').value;
+      if (!text || !btn_name || !btn_url) return alert('يرجى ملء الحقول المطلوبة');
+      const res = await fetch(`${API_BASE}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: selectedChatId, text, btn_name, btn_url, btn_icon })
+      });
+      const data = await res.json();
+      alert(data.message || data.error || 'تم');
+      if (res.ok) { hidePostForm(); document.getElementById('post-text').value = ''; document.getElementById('btn-name').value = ''; document.getElementById('btn-url').value = ''; }
+    }
+
+    function showAddChannel() { document.getElementById('add-channel-form').style.display = 'block'; hidePostForm(); }
+    function hideAddChannel() { document.getElementById('add-channel-form').style.display = 'none'; }
+
+    async function addChannel() {
+      const username = document.getElementById('new-channel').value.trim();
+      if (!username) return alert('أدخل معرف القناة');
+      const res = await fetch(`${API_BASE}/add_channel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      const data = await res.json();
+      alert(data.message || data.error || 'تم');
+      if (res.ok) { hideAddChannel(); loadChannels(); }
+    }
+
+    loadChannels();
+  </script>
+</body>
+</html>
