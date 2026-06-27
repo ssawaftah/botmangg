@@ -32,7 +32,7 @@ async function handleUpdate(update, env) {
       const keyboard = {
         inline_keyboard: [
           [{ text: '📝 إنشاء منشور', callback_data: 'create_post' }],
-          [{ text: '📢 إدارة القنوات', web_app: { url: 'https://YOUR_PAGES_URL.pages.dev' } }]
+          [{ text: '📢 إدارة القنوات', web_app: { url: 'https://botmangg.pages.dev' } }]
         ]
       };
       await sendToTelegram('sendMessage', {
@@ -68,7 +68,7 @@ async function handleUpdate(update, env) {
       const keyboard = {
         inline_keyboard: [
           [{ text: '➕ إضافة المزيد', callback_data: 'add_more' }],
-          [{ text: '🔘 إنشاء الأزرار', web_app: { url: 'https://YOUR_PAGES_URL.pages.dev/buttons' } }],
+          [{ text: '🔘 إنشاء الأزرار', web_app: { url: 'https://botmangg.pages.dev/buttons' } }],
           [{ text: '📤 نشر مباشرة', callback_data: 'publish_now' }]
         ]
       };
