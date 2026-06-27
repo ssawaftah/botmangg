@@ -1,4 +1,4 @@
-const TELEGRAM_TOKEN = 'ضع_توكن_البوت_هنا'; // ⚠️ استبدله
+const TELEGRAM_TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4'; // ⚠️ استبدله
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
