@@ -45,8 +45,10 @@
   </div>
 
   <script>
-    // ⚠️ استبدل برابط الـ Worker الفعلي
-    const API_BASE = 'https://bottt.izubex.workers.dev';
+    // ⚠️ استبدل التوكن هنا
+    const BOT_TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4';
+
+    const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
     const STORAGE_KEY = 'my_channels';
 
     function getChannels() {
@@ -102,18 +104,16 @@
       const username = document.getElementById('new-channel-username').value.trim();
       if (!username) return showMessage(addMessage, 'أدخل معرف القناة', true);
       try {
-        const res = await fetch(API_BASE + '/resolve_channel', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username })
-        });
+        const res = await fetch(`${API_BASE}/getChat?chat_id=@${username.replace('@', '')}`);
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'فشل جلب معلومات القناة');
+        if (!data.ok) throw new Error('تأكد أن البوت مشرف في القناة');
+
+        const chat = data.result;
         const channels = getChannels();
-        if (channels.some(ch => ch.chat_id === data.chat_id)) {
+        if (channels.some(ch => ch.chat_id === chat.id)) {
           throw new Error('القناة مضافة مسبقاً');
         }
-        channels.push({ chat_id: data.chat_id, title: data.title, username: data.username });
+        channels.push({ chat_id: chat.id, title: chat.title || username, username: username.replace('@', '') });
         saveChannels(channels);
         document.getElementById('new-channel-username').value = '';
         addForm.style.display = 'none';
@@ -137,15 +137,24 @@
       const btn_url = document.getElementById('btn-url').value.trim();
       const btn_icon = document.getElementById('btn-icon').value.trim();
       if (!text || !btn_name || !btn_url) return showMessage(publishMessage, 'جميع الحقول مطلوبة', true);
+      
       try {
-        const res = await fetch(API_BASE + '/publish', {
+        const replyMarkup = {
+          inline_keyboard: [[{ text: `${btn_icon||''} ${btn_name}`.trim(), url: btn_url }]]
+        };
+        const res = await fetch(`${API_BASE}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: selectedChatId, text, btn_name, btn_url, btn_icon })
+          body: JSON.stringify({
+            chat_id: selectedChatId,
+            text: text,
+            reply_markup: replyMarkup,
+            parse_mode: 'HTML'
+          })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'فشل النشر');
-        showMessage(publishMessage, data.message, false);
+        if (!data.ok) throw new Error(data.description || 'فشل النشر');
+        showMessage(publishMessage, 'تم النشر بنجاح', false);
         document.getElementById('post-text').value = '';
         document.getElementById('btn-name').value = '';
         document.getElementById('btn-url').value = '';
