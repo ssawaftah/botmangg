@@ -175,7 +175,7 @@
 
   <script>
     (function() {
-      // ========== توكن مؤقت ==========
+      // ========== توكن مؤقت (استبدله لاحقاً) ==========
       const BOT_TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4';
       const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
       const CHANNELS_KEY = 'pro_channels';
@@ -297,7 +297,7 @@
           const res = await fetch(`${API_BASE}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: selectedChatId, text, reply_markup, parse_mode: 'HTML' })
+            body: JSON.stringify({ chat_id: selectedChatId, text, reply_markup: replyMarkup, parse_mode: 'HTML' })
           });
           const data = await res.json();
           if (!data.ok) throw new Error(data.description || 'فشل النشر');
