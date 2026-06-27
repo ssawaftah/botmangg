@@ -3,318 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>منشئ الأزرار Pro</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>إضافة أزرار</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .header {
-      background: white;
-      padding: 25px;
-      border-radius: 20px;
-      text-align: center;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    .header h1 {
-      color: #764ba2;
-      font-size: 1.8em;
-    }
-    .header p {
-      color: #888;
-      margin-top: 5px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    .btn-list {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .btn-item {
-      background: #f8f9fa;
-      padding: 15px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: 0.3s;
-    }
-    .btn-preview-small {
-      padding: 8px 20px;
-      border-radius: 8px;
-      color: white;
-      text-decoration: none;
-      font-size: 0.9em;
-    }
-    .add-btn {
-      background: #764ba2;
-      color: white;
-      border: none;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      font-size: 2em;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
-      margin: 20px auto;
-      display: block;
-      transition: 0.3s;
-    }
-    .add-btn:active { transform: scale(0.9); }
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal {
-      background: white;
-      padding: 25px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 400px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 1em;
-    }
-    .color-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin: 15px 0;
-    }
-    .color-circle {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 3px solid transparent;
-      transition: 0.2s;
-    }
-    .color-circle.selected { border-color: #333; transform: scale(1.1); }
-    .icon-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      max-height: 200px;
-      overflow-y: auto;
-      margin: 15px 0;
-    }
-    .icon-cell {
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f0f0f0;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 1.5em;
-      border: 2px solid transparent;
-      transition: 0.2s;
-    }
-    .icon-cell.selected { border-color: #764ba2; background: #ede4f5; }
-    .save-btn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      border: none;
-      width: 100%;
-      padding: 15px;
-      border-radius: 12px;
-      font-size: 1.1em;
-      cursor: pointer;
-      margin-top: 20px;
-    }
+    body { font-family: Arial; background: #f0f2f5; padding: 20px; max-width: 500px; margin: 0 auto; }
+    .header { background: #764ba2; color: white; padding: 20px; text-align: center; border-radius: 20px; margin-bottom: 20px; }
+    .card { background: white; padding: 15px; border-radius: 10px; margin: 10px 0; }
+    input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
+    .btn { background: #764ba2; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin: 5px 0; font-size: 1em; }
+    .btn-outline { background: transparent; border: 2px solid #764ba2; color: #764ba2; }
+    .color-row { display: flex; gap: 10px; margin: 10px 0; }
+    .color-dot { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+    .color-dot.sel { border-color: #333; }
+    .icon-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .icon-box { width: 45px; height: 45px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; }
+    .icon-box.sel { background: #d5c4e8; border: 2px solid #764ba2; }
+    .btn-list { margin: 10px 0; }
+    .btn-item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🔘 منشئ الأزرار</h1>
-      <p>أضف أزراراً تفاعلية لمنشورك</p>
+  <div class="header"><h2>🔘 أزرار المنشور</h2></div>
+  
+  <div class="btn-list" id="btn-list"></div>
+  
+  <button class="btn" id="add-btn">➕ إضافة زر</button>
+  
+  <div class="card" id="form-card" style="display:none;">
+    <input type="text" id="btn-text" placeholder="نص الزر">
+    <input type="text" id="btn-url" placeholder="الرابط">
+    
+    <label>اللون:</label>
+    <div class="color-row" id="colors">
+      <div class="color-dot sel" data-color="#0088cc" style="background:#0088cc;"></div>
+      <div class="color-dot" data-color="#e74c3c" style="background:#e74c3c;"></div>
+      <div class="color-dot" data-color="#27ae60" style="background:#27ae60;"></div>
+      <div class="color-dot" data-color="#f39c12" style="background:#f39c12;"></div>
     </div>
 
-    <div class="card">
-      <div class="btn-list" id="buttons-list"></div>
-      <button class="add-btn" id="add-btn">＋</button>
-      <button class="save-btn" id="save-all-btn">
-        <i class="fa-solid fa-floppy-disk"></i> حفظ جميع الأزرار
-      </button>
+    <label>الأيقونة:</label>
+    <div class="icon-row" id="icons">
+      <span class="icon-box sel" data-icon="📤">📤</span>
+      <span class="icon-box" data-icon="🔗">🔗</span>
+      <span class="icon-box" data-icon="⬇️">⬇️</span>
+      <span class="icon-box" data-icon="▶️">▶️</span>
+      <span class="icon-box" data-icon="⭐">⭐</span>
+      <span class="icon-box" data-icon="❤️">❤️</span>
+      <span class="icon-box" data-icon="🔔">🔔</span>
+      <span class="icon-box" data-icon="🌐">🌐</span>
     </div>
+
+    <button class="btn" id="save-btn">حفظ الزر</button>
+    <button class="btn btn-outline" id="cancel-btn">إلغاء</button>
   </div>
 
-  <!-- نافذة إضافة زر -->
-  <div class="modal-overlay" id="modal">
-    <div class="modal">
-      <h3 style="margin-bottom:15px;">✨ خصائص الزر</h3>
-      <label>عنوان الزر</label>
-      <input type="text" id="btn-text" placeholder="اكتب عنوان الزر">
-      <label>رابط الزر</label>
-      <input type="text" id="btn-url" placeholder="https://...">
-      
-      <label>لون الخلفية</label>
-      <div class="color-grid" id="color-grid">
-        <div class="color-circle selected" data-color="#0088cc" style="background:#0088cc;"></div>
-        <div class="color-circle" data-color="#e74c3c" style="background:#e74c3c;"></div>
-        <div class="color-circle" data-color="#27ae60" style="background:#27ae60;"></div>
-        <div class="color-circle" data-color="#f39c12" style="background:#f39c12;"></div>
-        <div class="color-circle" data-color="#9b59b6" style="background:#9b59b6;"></div>
-        <div class="color-circle" data-color="#1abc9c" style="background:#1abc9c;"></div>
-        <div class="color-circle" data-color="#2c3e50" style="background:#2c3e50;"></div>
-        <div class="color-circle" data-color="transparent" style="background:white; border:2px dashed #ccc;"></div>
-      </div>
-
-      <label>الأيقونة</label>
-      <div class="icon-grid" id="icon-grid">
-        <span class="icon-cell selected" data-icon="fa-paper-plane"><i class="fa-solid fa-paper-plane"></i></span>
-        <span class="icon-cell" data-icon="fa-link"><i class="fa-solid fa-link"></i></span>
-        <span class="icon-cell" data-icon="fa-download"><i class="fa-solid fa-download"></i></span>
-        <span class="icon-cell" data-icon="fa-play"><i class="fa-solid fa-play"></i></span>
-        <span class="icon-cell" data-icon="fa-star"><i class="fa-solid fa-star"></i></span>
-        <span class="icon-cell" data-icon="fa-heart"><i class="fa-solid fa-heart"></i></span>
-        <span class="icon-cell" data-icon="fa-bell"><i class="fa-solid fa-bell"></i></span>
-        <span class="icon-cell" data-icon="fa-video"><i class="fa-solid fa-video"></i></span>
-        <span class="icon-cell" data-icon="fa-image"><i class="fa-solid fa-image"></i></span>
-        <span class="icon-cell" data-icon="fa-cart-shopping"><i class="fa-solid fa-cart-shopping"></i></span>
-        <span class="icon-cell" data-icon="fa-globe"><i class="fa-solid fa-globe"></i></span>
-        <span class="icon-cell" data-icon="fa-check"><i class="fa-solid fa-check"></i></span>
-        <span class="icon-cell" data-icon="fa-share"><i class="fa-solid fa-share"></i></span>
-        <span class="icon-cell" data-icon="fa-comment"><i class="fa-solid fa-comment"></i></span>
-        <span class="icon-cell" data-icon="fa-phone"><i class="fa-solid fa-phone"></i></span>
-        <span class="icon-cell" data-icon="fa-envelope"><i class="fa-solid fa-envelope"></i></span>
-        <span class="icon-cell" data-icon="fa-location-dot"><i class="fa-solid fa-location-dot"></i></span>
-        <span class="icon-cell" data-icon="fa-calendar"><i class="fa-solid fa-calendar"></i></span>
-        <span class="icon-cell" data-icon="fa-headphones"><i class="fa-solid fa-headphones"></i></span>
-        <span class="icon-cell" data-icon="fa-book"><i class="fa-solid fa-book"></i></span>
-      </div>
-
-      <button class="save-btn" id="save-btn">حفظ الزر</button>
-      <button class="save-btn" style="background:#999; margin-top:5px;" id="cancel-btn">إلغاء</button>
-    </div>
-  </div>
+  <button class="btn" id="done-btn" style="background:#27ae60; margin-top:20px;">✅ حفظ الكل وإغلاق</button>
 
   <script>
-    (function() {
-      const tg = window.Telegram?.WebApp;
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    let buttons = [];
+    let selectedColor = '#0088cc';
+    let selectedIcon = '📤';
+
+    function render() {
+      document.getElementById('btn-list').innerHTML = buttons.map((b, i) => `
+        <div class="btn-item">
+          <span>${b.icon} ${b.text}</span>
+          <button onclick="del(${i})" style="border:none;background:none;cursor:pointer;">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    window.del = function(i) { buttons.splice(i, 1); render(); };
+
+    document.getElementById('add-btn').addEventListener('click', () => {
+      document.getElementById('form-card').style.display = 'block';
+    });
+
+    document.getElementById('cancel-btn').addEventListener('click', () => {
+      document.getElementById('form-card').style.display = 'none';
+    });
+
+    document.getElementById('colors').addEventListener('click', e => {
+      const dot = e.target.closest('.color-dot');
+      if (!dot) return;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('sel'));
+      dot.classList.add('sel');
+      selectedColor = dot.dataset.color;
+    });
+
+    document.getElementById('icons').addEventListener('click', e => {
+      const box = e.target.closest('.icon-box');
+      if (!box) return;
+      document.querySelectorAll('.icon-box').forEach(b => b.classList.remove('sel'));
+      box.classList.add('sel');
+      selectedIcon = box.dataset.icon;
+    });
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+      const text = document.getElementById('btn-text').value.trim();
+      const url = document.getElementById('btn-url').value.trim();
+      if (!text || !url) return alert('املأ جميع الحقول');
+      buttons.push({ text, url, color: selectedColor, icon: selectedIcon });
+      render();
+      document.getElementById('form-card').style.display = 'none';
+      document.getElementById('btn-text').value = '';
+      document.getElementById('btn-url').value = '';
+    });
+
+    document.getElementById('done-btn').addEventListener('click', () => {
       if (tg) {
-        tg.ready();
-        tg.expand();
+        tg.sendData(JSON.stringify({ buttons }));
+        tg.close();
       }
-
-      let buttons = [];
-      let selectedColor = '#0088cc';
-      let selectedIcon = 'fa-paper-plane';
-
-      const modal = document.getElementById('modal');
-      const addBtn = document.getElementById('add-btn');
-      const saveBtn = document.getElementById('save-btn');
-      const cancelBtn = document.getElementById('cancel-btn');
-      const saveAllBtn = document.getElementById('save-all-btn');
-      const buttonsList = document.getElementById('buttons-list');
-      const btnText = document.getElementById('btn-text');
-      const btnUrl = document.getElementById('btn-url');
-
-      addBtn.addEventListener('click', () => {
-        btnText.value = '';
-        btnUrl.value = '';
-        resetSelections();
-        modal.classList.add('active');
-      });
-
-      cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
-
-      document.getElementById('color-grid').addEventListener('click', function(e) {
-        const circle = e.target.closest('.color-circle');
-        if (!circle) return;
-        document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
-        circle.classList.add('selected');
-        selectedColor = circle.dataset.color;
-      });
-
-      document.getElementById('icon-grid').addEventListener('click', function(e) {
-        const cell = e.target.closest('.icon-cell');
-        if (!cell) return;
-        document.querySelectorAll('.icon-cell').forEach(c => c.classList.remove('selected'));
-        cell.classList.add('selected');
-        selectedIcon = cell.dataset.icon;
-      });
-
-      function resetSelections() {
-        selectedColor = '#0088cc';
-        selectedIcon = 'fa-paper-plane';
-        document.querySelectorAll('.color-circle').forEach((c, i) => c.classList.toggle('selected', i === 0));
-        document.querySelectorAll('.icon-cell').forEach((c, i) => c.classList.toggle('selected', i === 0));
-      }
-
-      function renderButtons() {
-        buttonsList.innerHTML = buttons.map((btn, i) => `
-          <div class="btn-item">
-            <span><i class="fa-solid ${btn.icon}"></i> ${btn.text}</span>
-            <div style="display:flex; gap:8px;">
-              <a href="${btn.url}" target="_blank" class="btn-preview-small" style="background:${btn.color};">معاينة</a>
-              <button onclick="deleteBtn(${i})" style="background:none;border:none;cursor:pointer;color:red;">🗑️</button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      window.deleteBtn = function(index) {
-        buttons.splice(index, 1);
-        renderButtons();
-      };
-
-      saveBtn.addEventListener('click', () => {
-        const text = btnText.value.trim();
-        const url = btnUrl.value.trim();
-        if (!text || !url) {
-          alert('يرجى ملء جميع الحقول');
-          return;
-        }
-        buttons.push({ text, url, color: selectedColor, icon: selectedIcon });
-        renderButtons();
-        modal.classList.remove('active');
-      });
-
-      saveAllBtn.addEventListener('click', () => {
-        if (buttons.length === 0) {
-          alert('أضف زراً واحداً على الأقل');
-          return;
-        }
-        if (tg) {
-          tg.sendData(JSON.stringify({ buttons }));
-          tg.close();
-        } else {
-          alert('تم حفظ ' + buttons.length + ' أزرار');
-        }
-      });
-
-    })();
+    });
   </script>
 </body>
 </html>
