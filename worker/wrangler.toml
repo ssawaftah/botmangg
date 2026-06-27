@@ -5,5 +5,5 @@ compatibility_date = "2024-01-01"
 # رابط KV (سيتم إنشاؤه تلقائياً عند النشر إن لم يوجد)
 [[kv_namespaces]]
 binding = "CHANNELS_KV"
-id = "CHANNELS_KV"   # ⚠️ استبدله بـ ID الـ Namespace الذي أنشأته، أو اتركه فارغاً ليُنشئ جديداً
-preview_id = "CHANNELS_KV"
+id = ""   # ⚠️ استبدله بـ ID الـ Namespace الذي أنشأته، أو اتركه فارغاً ليُنشئ جديداً
+preview_id = ""
