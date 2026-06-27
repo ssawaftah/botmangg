@@ -3,177 +3,406 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إدارة القنوات</title>
+  <title>إدارة القنوات – Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
-    .btn { background: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
-    .btn-secondary { background: #ccc; color: #333; }
-    .channel-item { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; }
-    .form-box { background: white; padding: 20px; margin-top: 20px; border-radius: 10px; display: none; }
-    input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
-    .message { padding: 10px; margin: 10px 0; border-radius: 5px; display: none; }
-    .error { background: #fce4e4; color: #c00; }
-    .success { background: #e6f9f0; color: #0a0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f0f2f5;
+      padding-bottom: 70px;
+      max-width: 500px;
+      margin: 0 auto;
+      color: #222;
+    }
+    /* شريط العنوان */
+    .header {
+      background: linear-gradient(135deg, #0088cc, #2aabee);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 0 0 20px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header h2 { font-size: 1.5em; }
+
+    /* أقسام التبويب */
+    .tab-content { display: none; padding: 20px; }
+    .tab-content.active { display: block; }
+
+    /* بطاقة القناة */
+    .channel-card {
+      background: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .channel-card:active { transform: scale(0.98); }
+    .channel-avatar {
+      width: 55px;
+      height: 55px;
+      border-radius: 15px;
+      background: #0088cc;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      margin-left: 15px;
+      flex-shrink: 0;
+    }
+    .channel-info { flex: 1; }
+    .channel-info strong { display: block; font-size: 1.1em; }
+    .channel-info span { color: #888; font-size: 0.9em; }
+    .delete-btn {
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 1em;
+      cursor: pointer;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      opacity: 0.9;
+    }
+
+    /* أزرار */
+    .btn {
+      background: #0088cc;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+    }
+    .btn:hover { background: #006699; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+    .btn-outline { background: transparent; border: 2px solid #0088cc; color: #0088cc; }
+
+    /* نماذج */
+    .form-box {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      display: none;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 1em;
+    }
+    textarea { resize: vertical; }
+
+    /* شريط التنقل السفلي */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 20;
+    }
+    .nav-item {
+      text-align: center;
+      color: #888;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .nav-item.active { color: #0088cc; font-weight: bold; }
+    .nav-item i { font-size: 1.5em; display: block; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 50px;
+      z-index: 100;
+      display: none;
+      font-size: 0.9em;
+    }
+    .toast.success { background: #27ae60; }
+    .toast.error { background: #e74c3c; }
+
+    /* معاينة المنشور */
+    .post-preview {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border: 1px dashed #ccc;
+    }
+    .post-preview .preview-btn {
+      background: #0088cc;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    /* المسودات */
+    .draft-item {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+    }
   </style>
 </head>
 <body>
-  <h2>قنواتي</h2>
-  <div id="channel-container"></div>
-  <button class="btn" id="show-add-form">➕ إضافة قناة</button>
+  <div class="header">
+    <h2>🚀 إدارة القنوات Pro</h2>
+  </div>
 
-  <div id="add-channel-form" class="form-box">
-    <h3>إضافة قناة جديدة</h3>
-    <input type="text" id="new-channel-username" placeholder="@username">
-    <div id="add-message" class="message"></div>
-    <div>
-      <button class="btn" id="add-channel-btn">إضافة</button>
-      <button class="btn btn-secondary" id="cancel-add">إلغاء</button>
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- تبويب القنوات -->
+  <div id="tab-channels" class="tab-content active">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3>📢 قنواتي</h3>
+      <button class="btn" onclick="showAddForm()"><i class="fas fa-plus"></i> إضافة</button>
+    </div>
+    <div id="channel-container"></div>
+
+    <!-- نموذج إضافة قناة -->
+    <div id="add-form" class="form-box">
+      <h3>➕ إضافة قناة جديدة</h3>
+      <input type="text" id="new-channel" placeholder="معرف القناة @username">
+      <div style="display:flex; gap:10px; margin-top:15px;">
+        <button class="btn" onclick="addChannel()">حفظ</button>
+        <button class="btn btn-secondary" onclick="hideAddForm()">إلغاء</button>
+      </div>
+    </div>
+
+    <!-- نموذج النشر -->
+    <div id="publish-form" class="form-box">
+      <h3>📝 نشر في: <span id="publish-channel-name"></span></h3>
+      <textarea id="post-text" rows="3" placeholder="نص المنشور..."></textarea>
+      <input type="text" id="btn-name" placeholder="اسم الزر">
+      <input type="text" id="btn-url" placeholder="رابط الزر">
+      <input type="text" id="btn-icon" placeholder="إيموجي (اختياري)">
+      <div class="post-preview" id="post-preview" style="display:none;">
+        <p id="preview-text"></p>
+        <a href="#" class="preview-btn" id="preview-btn" target="_blank">زر المعاينة</a>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:15px;">
+        <button class="btn" onclick="publishPost()"><i class="fas fa-paper-plane"></i> نشر</button>
+        <button class="btn btn-outline" onclick="previewPost()"><i class="fas fa-eye"></i> معاينة</button>
+        <button class="btn btn-secondary" onclick="hidePublishForm()">إلغاء</button>
+      </div>
     </div>
   </div>
 
-  <div id="post-form" class="form-box">
-    <h3>نشر في: <span id="selected-channel-name"></span></h3>
-    <textarea id="post-text" placeholder="نص المنشور"></textarea>
-    <input type="text" id="btn-name" placeholder="اسم الزر">
-    <input type="text" id="btn-url" placeholder="رابط الزر">
-    <input type="text" id="btn-icon" placeholder="إيموجي (اختياري)">
-    <div id="publish-message" class="message"></div>
-    <div>
-      <button class="btn" id="publish-btn">📤 نشر</button>
-      <button class="btn btn-secondary" id="cancel-publish">إلغاء</button>
-    </div>
+  <!-- تبويب المسودات -->
+  <div id="tab-drafts" class="tab-content">
+    <h3>📋 المسودات</h3>
+    <div id="drafts-container"></div>
+  </div>
+
+  <!-- تبويب الإعدادات -->
+  <div id="tab-settings" class="tab-content">
+    <h3>⚙️ الإعدادات</h3>
+    <button class="btn btn-secondary" onclick="clearAllData()"><i class="fas fa-trash"></i> مسح جميع البيانات</button>
+  </div>
+
+  <!-- شريط التنقل السفلي -->
+  <div class="bottom-nav">
+    <div class="nav-item active" data-tab="channels"><i class="fas fa-list"></i> القنوات</div>
+    <div class="nav-item" data-tab="drafts"><i class="fas fa-file-alt"></i> المسودات</div>
+    <div class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> الإعدادات</div>
   </div>
 
   <script>
-    // ⚠️ استبدل التوكن هنا
-    const BOT_TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4';
-
+    // ==================== ثوابت ====================
+    const BOT_TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4';   // ⚠️ استبدله
     const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
-    const STORAGE_KEY = 'my_channels';
+    const CHANNELS_KEY = 'pro_channels';
+    const DRAFTS_KEY = 'pro_drafts';
 
-    function getChannels() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+    // ==================== دوال مساعدة ====================
+    function getFromStorage(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
+    function saveToStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 2500);
     }
 
-    function saveChannels(channels) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(channels));
-    }
-
+    // ==================== القنوات ====================
     let selectedChatId = null;
 
-    const channelContainer = document.getElementById('channel-container');
-    const addForm = document.getElementById('add-channel-form');
-    const postForm = document.getElementById('post-form');
-    const addMessage = document.getElementById('add-message');
-    const publishMessage = document.getElementById('publish-message');
-
-    function showMessage(el, msg, isError = false) {
-      el.textContent = msg;
-      el.className = 'message ' + (isError ? 'error' : 'success');
-      el.style.display = 'block';
-      setTimeout(() => el.style.display = 'none', 3000);
-    }
-
     function renderChannels() {
-      const channels = getChannels();
-      channelContainer.innerHTML = '';
-      if (channels.length === 0) {
-        channelContainer.innerHTML = '<p>لا توجد قنوات مضافة.</p>';
-        return;
-      }
-      channels.forEach((ch, index) => {
-        const div = document.createElement('div');
-        div.className = 'channel-item';
-        div.innerHTML = `
-          <span style="cursor:pointer" onclick="selectChannel('${ch.chat_id}', '${ch.title.replace(/'/g, "\\'")}')"><strong>${ch.title}</strong> (@${ch.username})</span>
-          <button class="btn btn-secondary" onclick="deleteChannel(${index})">🗑️</button>
-        `;
-        channelContainer.appendChild(div);
-      });
+      const channels = getFromStorage(CHANNELS_KEY);
+      const container = document.getElementById('channel-container');
+      container.innerHTML = channels.length === 0
+        ? '<p style="color:#888; text-align:center;">لا توجد قنوات مضافة بعد.</p>'
+        : channels.map((ch, i) => `
+          <div class="channel-card" onclick="openPublishForm('${ch.chat_id}', '${ch.title.replace(/'/g, "\\'")}')">
+            <button class="delete-btn" onclick="deleteChannel(event, ${i})"><i class="fas fa-trash"></i></button>
+            <div class="channel-avatar">${ch.title.charAt(0)}</div>
+            <div class="channel-info">
+              <strong>${ch.title}</strong>
+              <span>@${ch.username}</span>
+            </div>
+          </div>
+        `).join('');
     }
 
-    function selectChannel(chatId, title) {
-      selectedChatId = chatId;
-      document.getElementById('selected-channel-name').textContent = title;
-      postForm.style.display = 'block';
-      addForm.style.display = 'none';
-    }
+    function showAddForm() { document.getElementById('add-form').style.display = 'block'; }
+    function hideAddForm() { document.getElementById('add-form').style.display = 'none'; }
 
     async function addChannel() {
-      const username = document.getElementById('new-channel-username').value.trim();
-      if (!username) return showMessage(addMessage, 'أدخل معرف القناة', true);
+      const username = document.getElementById('new-channel').value.trim().replace('@', '');
+      if (!username) return showToast('أدخل معرف القناة', 'error');
       try {
-        const res = await fetch(`${API_BASE}/getChat?chat_id=@${username.replace('@', '')}`);
+        const res = await fetch(`${API_BASE}/getChat?chat_id=@${username}`);
         const data = await res.json();
         if (!data.ok) throw new Error('تأكد أن البوت مشرف في القناة');
-
-        const chat = data.result;
-        const channels = getChannels();
-        if (channels.some(ch => ch.chat_id === chat.id)) {
-          throw new Error('القناة مضافة مسبقاً');
-        }
-        channels.push({ chat_id: chat.id, title: chat.title || username, username: username.replace('@', '') });
-        saveChannels(channels);
-        document.getElementById('new-channel-username').value = '';
-        addForm.style.display = 'none';
+        const channels = getFromStorage(CHANNELS_KEY);
+        if (channels.some(ch => ch.chat_id === data.result.id)) throw new Error('القناة مضافة مسبقاً');
+        channels.push({ chat_id: data.result.id, title: data.result.title || username, username });
+        saveToStorage(CHANNELS_KEY, channels);
+        document.getElementById('new-channel').value = '';
+        hideAddForm();
         renderChannels();
-        showMessage(addMessage, 'تمت الإضافة بنجاح');
-      } catch (e) {
-        showMessage(addMessage, e.message, true);
-      }
+        showToast('تمت إضافة القناة! 🎉');
+      } catch (e) { showToast(e.message, 'error'); }
     }
 
-    function deleteChannel(index) {
-      const channels = getChannels();
+    function deleteChannel(e, index) {
+      e.stopPropagation();
+      const channels = getFromStorage(CHANNELS_KEY);
       channels.splice(index, 1);
-      saveChannels(channels);
+      saveToStorage(CHANNELS_KEY, channels);
       renderChannels();
+      showToast('تم حذف القناة', 'error');
+    }
+
+    function openPublishForm(chatId, title) {
+      selectedChatId = chatId;
+      document.getElementById('publish-channel-name').textContent = title;
+      document.getElementById('publish-form').style.display = 'block';
+    }
+    function hidePublishForm() { document.getElementById('publish-form').style.display = 'none'; }
+
+    function previewPost() {
+      const text = document.getElementById('post-text').value.trim();
+      const btnName = document.getElementById('btn-name').value.trim();
+      const btnUrl = document.getElementById('btn-url').value.trim();
+      const btnIcon = document.getElementById('btn-icon').value.trim();
+      const previewDiv = document.getElementById('post-preview');
+      if (!text) return showToast('اكتب'' نصاً أولاً', 'error');
+      document.getElementById('preview-text').textContent = text;
+      const previewBtn = document.getElementById('preview-btn');
+      if (btnName && btnUrl) {
+        previewBtn.textContent = `${btnIcon||} ${btnName}`;
+        previewBtn.href = btnUrl;
+        previewBtn.style.display = 'inline-block';
+      } else {
+        previewBtn.style.display = 'none';
+      }
+      previewDiv.style.display = 'block';
     }
 
     async function publishPost() {
       const text = document.getElementById('post-text').value.trim();
-      const btn_name = document.getElementById('btn-name').value.trim();
-      const btn_url = document.getElementById('btn-url').value.trim();
-      const btn_icon = document.getElementById('btn-icon').value.trim();
-      if (!text || !btn_name || !btn_url) return showMessage(publishMessage, 'جميع الحقول مطلوبة', true);
-      
+      const btnName = document.getElementById('btn-name').value.trim();
+      const btnUrl = document.getElementById('btn-url').value.trim();
+      const btnIcon = document.getElementById('btn-icon').value.trim();
+      if (!text || !btnName || !btnUrl) return showToast('الحقول المطلوبة ناقصة', 'error');
       try {
-        const replyMarkup = {
-          inline_keyboard: [[{ text: `${btn_icon||''} ${btn_name}`.trim(), url: btn_url }]]
-        };
+        const replyMarkup = { inline_keyboard: [[{ text: `${btnIcon||''} ${btnName}`.trim(), url: btnUrl }]] };
         const res = await fetch(`${API_BASE}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: selectedChatId,
-            text: text,
-            reply_markup: replyMarkup,
-            parse_mode: 'HTML'
-          })
+          body: JSON.stringify({ chat_id: selectedChatId, text, reply_markup, parse_mode: 'HTML' })
         });
         const data = await res.json();
         if (!data.ok) throw new Error(data.description || 'فشل النشر');
-        showMessage(publishMessage, 'تم النشر بنجاح', false);
+        showToast('تم النشر بنجاح! ✅');
         document.getElementById('post-text').value = '';
         document.getElementById('btn-name').value = '';
         document.getElementById('btn-url').value = '';
         document.getElementById('btn-icon').value = '';
-        postForm.style.display = 'none';
-      } catch (e) {
-        showMessage(publishMessage, e.message, true);
+        document.getElementById('post-preview').style.display = 'none';
+        hidePublishForm();
+      } catch (e) { showToast(e.message, 'error'); }
+    }
+
+    // ==================== المسودات ====================
+    function renderDrafts() {
+      const drafts = getFromStorage(DRAFTS_KEY);
+      document.getElementById('drafts-container').innerHTML = drafts.length === 0
+        ? '<p style="color:#888;">لا توجد مسودات محفوظة.</p>'
+        : drafts.map((d, i) => `<div class="draft-item">${d.text} <button onclick="deleteDraft(${i})">🗑️</button></div>`).join('');
+    }
+
+    function deleteDraft(i) {
+      const drafts = getFromStorage(DRAFTS_KEY);
+      drafts.splice(i, 1);
+      saveToStorage(DRAFTS_KEY, drafts);
+      renderDrafts();
+    }
+
+    // ==================== الإعدادات ====================
+    function clearAllData() {
+      if (confirm('هل أنت متأكد من مسح كل القنوات والمسودات؟')) {
+        localStorage.removeItem(CHANNELS_KEY);
+        localStorage.removeItem(DRAFTS_KEY);
+        renderChannels(); renderDrafts();
+        showToast('تم مسح جميع البيانات');
       }
     }
 
-    document.getElementById('show-add-form').addEventListener('click', () => {
-      addForm.style.display = 'block';
-      postForm.style.display = 'none';
+    // ==================== التبويبات ====================
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${item.dataset.tab}`).classList.add('active');
+        if (item.dataset.tab === 'drafts') renderDrafts();
+        if (item.dataset.tab === 'channels') renderChannels();
+      });
     });
-    document.getElementById('cancel-add').addEventListener('click', () => addForm.style.display = 'none');
-    document.getElementById('add-channel-btn').addEventListener('click', addChannel);
-    document.getElementById('cancel-publish').addEventListener('click', () => postForm.style.display = 'none');
-    document.getElementById('publish-btn').addEventListener('click', publishPost);
 
+    // أول تشغيل
     renderChannels();
   </script>
 </body>
