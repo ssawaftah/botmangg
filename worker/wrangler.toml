@@ -2,3 +2,7 @@ name = "bottt"
 main = "index.js"
 compatibility_date = "2024-01-01"
 workers_dev = true
+
+[[kv_namespaces]]
+binding = "CHANNELS_KV"
+id = "fc8d7e2e9c484824bbbc816ed3b5ab54"
