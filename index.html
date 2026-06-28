@@ -1,182 +1,237 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="bg-gray-100 dark:bg-gray-900">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة النشر المتقدمة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>لوحة النشر الاحترافية</title>
+  <!-- 1. Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0088cc',
+            dark: '#1a1a2e'
+          }
+        }
+      }
+    }
+  </script>
+  <!-- 2. Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- 3. Emoji Picker -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial; background: #f0f2f5; padding: 15px; max-width: 500px; margin: auto; }
-    .tabs { display: flex; background: white; border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
-    .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #888; border-bottom: 3px solid transparent; }
-    .tab.active { color: #0088cc; border-bottom-color: #0088cc; font-weight: bold; }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .card { background: white; padding: 15px; border-radius: 12px; margin: 10px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-    .btn { background: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; width: 100%; margin: 5px 0; font-size: 1em; }
-    .btn-green { background: #27ae60; }
-    .btn-red { background: #e74c3c; }
-    .btn-purple { background: #764ba2; }
-    .btn-outline { background: transparent; border: 2px solid #0088cc; color: #0088cc; }
-    input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; }
-    .toolbar { display: flex; gap: 5px; margin: 5px 0; }
-    .toolbar button { flex: 1; padding: 8px; border: none; border-radius: 6px; background: #eee; cursor: pointer; font-weight: bold; }
-    .toolbar button:active { background: #ddd; }
-    .channel-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: white; border-radius: 10px; margin: 5px 0; }
-    .btn-item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
-    .color-dot { width: 30px; height: 30px; border-radius: 50%; display: inline-block; cursor: pointer; border: 2px solid transparent; margin: 0 5px; }
-    .color-dot.selected { border-color: #333; }
-    .icon-option { display: inline-block; padding: 8px; font-size: 1.5em; cursor: pointer; border-radius: 8px; }
-    .icon-option.selected { background: #e0e0e0; }
-    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 20px; z-index: 100; display: none; }
-    .toast.success { background: #27ae60; }
-    .toast.error { background: #e74c3c; }
-    .media-preview { max-width: 100%; max-height: 200px; border-radius: 10px; margin: 10px 0; }
+    /* تحسينات عامة */
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; }
+    .editor-content:empty::before {
+      content: "اكتب المنشور هنا...";
+      color: #9ca3af;
+    }
+    .editor-content:focus { outline: none; }
+    .preview-card { box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .dark .preview-card { background: #1e293b; color: white; }
+    /* تنسيق الـ Emoji Picker */
+    emoji-picker { width: 100%; height: 250px; }
   </style>
 </head>
-<body>
-  <div class="toast" id="toast"></div>
+<body class="min-h-screen p-4 max-w-lg mx-auto transition-colors duration-300">
 
-  <div class="tabs">
-    <div class="tab active" data-tab="channels">📢 القنوات</div>
-    <div class="tab" data-tab="compose">✍️ إنشاء منشور</div>
-  </div>
+  <!-- الشريط العلوي -->
+  <header class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-primary dark:text-blue-400">🚀 لوحة النشر</h1>
+    <button id="dark-mode-toggle" class="text-2xl text-gray-600 dark:text-gray-300 p-2">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+  </header>
 
-  <!-- تبويب القنوات -->
-  <div id="panel-channels" class="panel active">
-    <div id="channel-list"></div>
-    <input type="text" id="new-channel" placeholder="معرف القناة @username">
-    <button class="btn btn-green" id="add-channel-btn">➕ إضافة قناة</button>
-  </div>
+  <!-- التبويبات -->
+  <nav class="flex space-x-2 space-x-reverse mb-6 bg-white dark:bg-gray-800 rounded-xl p-1 shadow">
+    <button class="flex-1 tab-btn py-2 px-4 rounded-lg font-medium text-sm active" data-tab="channels">
+      <i class="fa-solid fa-list ml-1"></i> القنوات
+    </button>
+    <button class="flex-1 tab-btn py-2 px-4 rounded-lg font-medium text-sm" data-tab="compose">
+      <i class="fa-solid fa-pen-to-square ml-1"></i> إنشاء منشور
+    </button>
+  </nav>
 
-  <!-- تبويب إنشاء المنشور -->
-  <div id="panel-compose" class="panel">
-    <!-- شريط التنسيق -->
-    <div class="toolbar">
-      <button title="عريض" onclick="insertTag('b')">B</button>
-      <button title="مائل" onclick="insertTag('i')"><i>I</i></button>
-      <button title="رابط" onclick="insertLink()">🔗</button>
-    </div>
-
-    <textarea id="post-text" rows="4" placeholder="نص المنشور..."></textarea>
-
-    <!-- رفع وسائط -->
-    <div class="card" style="background: #f9f9f9;">
-      <h4>🖼️ إرفاق صورة أو فيديو</h4>
-      <input type="file" id="media-file" accept="image/*,video/*" style="margin-bottom:10px;">
-      <img id="media-preview-img" class="media-preview" style="display:none;">
-      <video id="media-preview-vid" class="media-preview" controls style="display:none; max-width:100%;"></video>
-      <button class="btn btn-outline" id="clear-media-btn" style="display:none;">إزالة الوسائط</button>
-    </div>
-
-    <!-- الأزرار -->
-    <h4>🔘 أزرار المنشور</h4>
-    <div id="buttons-container"></div>
-    <button class="btn btn-purple" id="add-button-btn">➕ إضافة زر</button>
-
-    <div id="button-form" style="display:none;" class="card">
-      <input type="text" id="btn-text" placeholder="نص الزر">
-      <input type="text" id="btn-url" placeholder="الرابط">
-      <div>
-        <span>اللون:</span>
-        <span class="color-dot selected" data-color="#0088cc" style="background:#0088cc;"></span>
-        <span class="color-dot" data-color="#e74c3c" style="background:#e74c3c;"></span>
-        <span class="color-dot" data-color="#27ae60" style="background:#27ae60;"></span>
-        <span class="color-dot" data-color="#f39c12" style="background:#f39c12;"></span>
+  <!-- محتوى التبويبات -->
+  <div id="tab-content">
+    <!-- تبويب القنوات -->
+    <div id="panel-channels" class="tab-panel">
+      <div id="channel-list" class="space-y-2 mb-4"></div>
+      <div class="flex gap-2">
+        <input type="text" id="new-channel" class="flex-1 p-3 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="@username">
+        <button id="add-channel-btn" class="bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600">
+          <i class="fa-solid fa-plus"></i>
+        </button>
       </div>
-      <div>
-        <span>الأيقونة:</span>
-        <span class="icon-option selected" data-icon="📤">📤</span>
-        <span class="icon-option" data-icon="🔗">🔗</span>
-        <span class="icon-option" data-icon="⬇️">⬇️</span>
-        <span class="icon-option" data-icon="▶️">▶️</span>
-        <span class="icon-option" data-icon="⭐">⭐</span>
-        <span class="icon-option" data-icon="❤️">❤️</span>
-        <span class="icon-option" data-icon="🌐">🌐</span>
-      </div>
-      <button class="btn" id="save-button-btn">حفظ الزر</button>
-      <button class="btn btn-red" id="cancel-button-btn">إلغاء</button>
     </div>
 
-    <h4>📢 اختر قناة للنشر</h4>
-    <select id="channel-select">
-      <option value="">-- اختر قناة --</option>
-    </select>
+    <!-- تبويب إنشاء المنشور -->
+    <div id="panel-compose" class="tab-panel hidden">
+      <!-- شريط أدوات التنسيق -->
+      <div class="flex items-center gap-2 mb-3 bg-white dark:bg-gray-800 p-2 rounded-lg shadow flex-wrap">
+        <button onclick="format('bold')" class="format-btn p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" title="عريض"><i class="fa-solid fa-bold"></i></button>
+        <button onclick="format('italic')" class="format-btn p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" title="مائل"><i class="fa-solid fa-italic"></i></button>
+        <button onclick="format('createLink')" class="format-btn p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" title="رابط"><i class="fa-solid fa-link"></i></button>
+        <button onclick="format('unlink')" class="format-btn p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" title="إزالة رابط"><i class="fa-solid fa-link-slash"></i></button>
+        <button id="emoji-btn" class="format-btn p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" title="إيموجي"><i class="fa-regular fa-face-smile"></i></button>
+        <div class="flex-1"></div>
+        <button id="load-draft-btn" class="text-xs text-blue-600 dark:text-blue-400 underline">تحميل مسودة</button>
+      </div>
 
-    <button class="btn btn-green" id="publish-btn">📤 نشر الآن</button>
+      <!-- المحرر الغني -->
+      <div id="editor" class="editor-content bg-white dark:bg-gray-800 border rounded-lg p-4 min-h-[120px] shadow mb-4 text-gray-800 dark:text-white" contenteditable="true"></div>
+
+      <!-- منطقة الوسائط -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-3 mb-4 shadow">
+        <h3 class="text-sm font-bold mb-2">📎 الوسائط</h3>
+        <div class="flex flex-wrap gap-2 mb-2" id="media-previews"></div>
+        <label class="cursor-pointer inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm">
+          <i class="fa-solid fa-plus ml-1"></i> إضافة وسائط
+          <input type="file" id="media-input" multiple accept="image/*,video/*" class="hidden">
+        </label>
+      </div>
+
+      <!-- الأزرار التفاعلية -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-3 mb-4 shadow">
+        <h3 class="text-sm font-bold mb-2">🔘 أزرار المنشور</h3>
+        <div id="buttons-container" class="space-y-2 mb-2"></div>
+        <button id="add-button-btn" class="text-sm text-purple-600 dark:text-purple-400 underline">+ إضافة زر</button>
+      </div>
+
+      <!-- نموذج إضافة زر -->
+      <div id="button-form" class="hidden bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 shadow space-y-2">
+        <input type="text" id="btn-text" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="نص الزر">
+        <input type="text" id="btn-url" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="رابط الزر">
+        <div class="flex gap-2 items-center">
+          <span class="text-sm">اللون:</span>
+          <span class="color-dot w-6 h-6 rounded-full cursor-pointer border-2 border-transparent selected" data-color="#0088cc" style="background:#0088cc;"></span>
+          <span class="color-dot w-6 h-6 rounded-full cursor-pointer border-2 border-transparent" data-color="#e74c3c" style="background:#e74c3c;"></span>
+          <span class="color-dot w-6 h-6 rounded-full cursor-pointer border-2 border-transparent" data-color="#27ae60" style="background:#27ae60;"></span>
+          <span class="color-dot w-6 h-6 rounded-full cursor-pointer border-2 border-transparent" data-color="#f39c12" style="background:#f39c12;"></span>
+        </div>
+        <div class="flex gap-2 items-center">
+          <span class="text-sm">الأيقونة:</span>
+          <span class="icon-option text-xl p-1 rounded cursor-pointer selected" data-icon="fa-paper-plane"><i class="fa-solid fa-paper-plane"></i></span>
+          <span class="icon-option text-xl p-1 rounded cursor-pointer" data-icon="fa-link"><i class="fa-solid fa-link"></i></span>
+          <span class="icon-option text-xl p-1 rounded cursor-pointer" data-icon="fa-download"><i class="fa-solid fa-download"></i></span>
+          <span class="icon-option text-xl p-1 rounded cursor-pointer" data-icon="fa-play"><i class="fa-solid fa-play"></i></span>
+          <span class="icon-option text-xl p-1 rounded cursor-pointer" data-icon="fa-star"><i class="fa-solid fa-star"></i></span>
+          <span class="icon-option text-xl p-1 rounded cursor-pointer" data-icon="fa-heart"><i class="fa-solid fa-heart"></i></span>
+          <span class="icon-option text-xl p-1 rounded cursor-pointer" data-icon="fa-globe"><i class="fa-solid fa-globe"></i></span>
+        </div>
+        <div class="flex gap-2">
+          <button id="save-button-btn" class="bg-purple-600 text-white px-4 py-2 rounded">حفظ</button>
+          <button id="cancel-button-btn" class="bg-gray-500 text-white px-4 py-2 rounded">إلغاء</button>
+        </div>
+      </div>
+
+      <!-- معاينة المنشور -->
+      <div class="preview-card bg-white dark:bg-gray-700 rounded-xl p-4 mb-4 shadow-lg">
+        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">👁️ معاينة</div>
+        <div id="preview-content" class="prose dark:prose-invert max-w-none"></div>
+        <div id="preview-buttons" class="mt-3 flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- اختيار قناة -->
+      <select id="channel-select" class="w-full p-3 border rounded-lg mb-4 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+        <option value="">-- اختر قناة --</option>
+      </select>
+
+      <!-- أزرار النشر -->
+      <div class="flex gap-2">
+        <button id="publish-btn" class="flex-1 bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 shadow">
+          <i class="fa-solid fa-paper-plane ml-1"></i> نشر
+        </button>
+        <button id="save-draft-btn" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white px-4 py-3 rounded-lg">
+          <i class="fa-solid fa-floppy-disk"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <script>
-    const BOT_TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4';
-    const API = 'https://api.telegram.org/bot' + BOT_TOKEN;
+  <!-- نافذة Toast -->
+  <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-black text-white px-5 py-3 rounded-full z-50 hidden transition-all opacity-90"></div>
+
+  <!-- Emoji Picker مخفي -->
+  <div id="emoji-picker-container" class="fixed inset-0 z-40 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl w-80">
+      <emoji-picker class="light dark"></emoji-picker>
+      <button id="close-emoji" class="mt-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white w-full py-2 rounded">إغلاق</button>
+    </div>
+  </div>
+
+<script>
+  (function() {
+    // ========== الثوابت ==========
+    const BOT_TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4'; // ⚠️ توكن مؤقت
+    const API = `https://api.telegram.org/bot${BOT_TOKEN}`;
     const CHANNELS_KEY = 'my_channels';
-    
-    let buttons = [];
-    let selectedColor = '#0088cc';
-    let selectedIcon = '📤';
-    let mediaFile = null; // سيحمل الملف المرفوع
+    const DRAFT_KEY = 'compose_draft';
 
     // ========== دوال عامة ==========
     function toast(msg, isOk = true) {
       const t = document.getElementById('toast');
       t.textContent = msg;
-      t.className = 'toast ' + (isOk ? 'success' : 'error');
+      t.className = `fixed top-4 left-1/2 transform -translate-x-1/2 bg-${isOk ? 'green' : 'red'}-500 text-white px-5 py-3 rounded-full z-50 transition-all opacity-90`;
       t.style.display = 'block';
       setTimeout(() => t.style.display = 'none', 2500);
     }
 
-    function getChannels() {
-      return JSON.parse(localStorage.getItem(CHANNELS_KEY) || '[]');
-    }
-    function saveChannels(ch) {
-      localStorage.setItem(CHANNELS_KEY, JSON.stringify(ch));
-    }
+    function getChannels() { return JSON.parse(localStorage.getItem(CHANNELS_KEY) || '[]'); }
+    function saveChannels(ch) { localStorage.setItem(CHANNELS_KEY, JSON.stringify(ch)); }
 
     // ========== التبويبات ==========
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-        if (tab.dataset.tab === 'compose') updateChannelSelect();
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('bg-primary', 'text-white'));
+        btn.classList.add('bg-primary', 'text-white');
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById(`panel-${btn.dataset.tab}`).classList.remove('hidden');
+        if (btn.dataset.tab === 'compose') updateChannelSelect();
       });
+    });
+
+    // ========== Dark Mode ==========
+    const darkToggle = document.getElementById('dark-mode-toggle');
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+    darkToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
     });
 
     // ========== إدارة القنوات ==========
     function renderChannels() {
       const channels = getChannels();
       const container = document.getElementById('channel-list');
-      if (channels.length === 0) {
-        container.innerHTML = '<p style="color:#888;">لا توجد قنوات مضافة</p>';
-        return;
-      }
-      container.innerHTML = channels.map((ch, i) => `
-        <div class="channel-row">
-          <span>📢 ${ch.title} (@${ch.username})</span>
-          <button class="btn btn-red" style="width:auto; padding:5px 10px;" onclick="deleteChannel(${i})">🗑️</button>
-        </div>
-      `).join('');
+      container.innerHTML = channels.length === 0 ? '<p class="text-gray-400 text-center">لا قنوات</p>' : '';
+      channels.forEach((ch, i) => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg shadow';
+        div.innerHTML = `<span class="font-bold">📢 ${ch.title} (@${ch.username})</span>`;
+        const delBtn = document.createElement('button');
+        delBtn.className = 'text-red-500 p-2';
+        delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+        delBtn.onclick = () => { channels.splice(i, 1); saveChannels(channels); renderChannels(); updateChannelSelect(); };
+        div.appendChild(delBtn);
+        container.appendChild(div);
+      });
     }
-
-    window.deleteChannel = function(index) {
-      const channels = getChannels();
-      channels.splice(index, 1);
-      saveChannels(channels);
-      renderChannels();
-      updateChannelSelect();
-      toast('تم حذف القناة');
-    };
 
     document.getElementById('add-channel-btn').addEventListener('click', async () => {
       const username = document.getElementById('new-channel').value.trim().replace('@', '');
-      if (!username) return toast('أدخل معرف القناة', false);
+      if (!username) return toast('أدخل المعرف', false);
       try {
-        const res = await fetch(API + '/getChat?chat_id=@' + username);
+        const res = await fetch(`${API}/getChat?chat_id=@${username}`);
         const data = await res.json();
-        if (!data.ok) throw new Error('تأكد أن البوت مشرف في القناة');
+        if (!data.ok) throw new Error('تأكد أن البوت مشرف');
         const channels = getChannels();
-        if (channels.some(c => c.chat_id === data.result.id)) throw new Error('القناة مضافة مسبقاً');
+        if (channels.some(c => c.chat_id === data.result.id)) throw new Error('مضافة مسبقاً');
         channels.push({ chat_id: data.result.id, title: data.result.title || username, username });
         saveChannels(channels);
         document.getElementById('new-channel').value = '';
@@ -188,97 +243,133 @@
 
     function updateChannelSelect() {
       const select = document.getElementById('channel-select');
-      const channels = getChannels();
       select.innerHTML = '<option value="">-- اختر قناة --</option>';
-      channels.forEach(ch => {
+      getChannels().forEach(ch => {
         select.innerHTML += `<option value="${ch.chat_id}">${ch.title} (@${ch.username})</option>`;
       });
     }
 
-    // ========== تنسيق النص ==========
-    window.insertTag = function(tag) {
-      const textarea = document.getElementById('post-text');
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const selectedText = textarea.value.substring(start, end);
-      const newText = `<${tag}>${selectedText || tag.toUpperCase()}</${tag}>`;
-      textarea.setRangeText(newText, start, end, 'end');
-      textarea.focus();
-    };
+    // ========== المحرر والمسودة ==========
+    const editor = document.getElementById('editor');
+    let buttons = [];
+    let selectedColor = '#0088cc';
+    let selectedIcon = 'fa-paper-plane';
+    let mediaFiles = []; // مصفوفة File objects
 
-    window.insertLink = function() {
-      const textarea = document.getElementById('post-text');
-      const url = prompt('أدخل الرابط:');
-      if (!url) return;
-      const text = prompt('نص الرابط:') || url;
-      const start = textarea.selectionStart;
-      textarea.setRangeText(`<a href="${url}">${text}</a>`, start, start, 'end');
-      textarea.focus();
-    };
+    // حفظ تلقائي للمسودة
+    setInterval(() => {
+      const draft = {
+        html: editor.innerHTML,
+        buttons: buttons,
+        mediaNames: mediaFiles.map(f => f.name) // لا يمكن حفظ File objects، سنكتفي بالأسماء
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }, 2000);
 
-    // ========== إدارة الوسائط ==========
-    document.getElementById('media-file').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      mediaFile = file;
-      const previewImg = document.getElementById('media-preview-img');
-      const previewVid = document.getElementById('media-preview-vid');
-      const clearBtn = document.getElementById('clear-media-btn');
-
-      if (file.type.startsWith('image/')) {
-        previewImg.src = URL.createObjectURL(file);
-        previewImg.style.display = 'block';
-        previewVid.style.display = 'none';
-      } else if (file.type.startsWith('video/')) {
-        previewVid.src = URL.createObjectURL(file);
-        previewVid.style.display = 'block';
-        previewImg.style.display = 'none';
-      }
-      clearBtn.style.display = 'block';
+    // تحميل مسودة
+    document.getElementById('load-draft-btn').addEventListener('click', () => {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return toast('لا توجد مسودة');
+      const draft = JSON.parse(raw);
+      editor.innerHTML = draft.html;
+      buttons = draft.buttons || [];
+      renderButtons();
+      toast('تم تحميل المسودة');
     });
 
-    document.getElementById('clear-media-btn').addEventListener('click', () => {
-      mediaFile = null;
-      document.getElementById('media-file').value = '';
-      document.getElementById('media-preview-img').style.display = 'none';
-      document.getElementById('media-preview-vid').style.display = 'none';
-      document.getElementById('clear-media-btn').style.display = 'none';
+    // حفظ مسودة يدوي
+    document.getElementById('save-draft-btn').addEventListener('click', () => {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        html: editor.innerHTML,
+        buttons: buttons
+      }));
+      toast('تم حفظ المسودة');
+    });
+
+    // ========== شريط التنسيق ==========
+    window.format = function(cmd) {
+      if (cmd === 'createLink') {
+        const url = prompt('الرابط:');
+        if (url) document.execCommand(cmd, false, url);
+      } else {
+        document.execCommand(cmd, false, null);
+      }
+      editor.focus();
+      updatePreview();
+    };
+
+    // ========== الإيموجي ==========
+    const emojiContainer = document.getElementById('emoji-picker-container');
+    document.getElementById('emoji-btn').addEventListener('click', () => {
+      emojiContainer.style.display = 'flex';
+    });
+    document.getElementById('close-emoji').addEventListener('click', () => {
+      emojiContainer.style.display = 'none';
+    });
+    document.querySelector('emoji-picker').addEventListener('emoji-click', event => {
+      editor.focus();
+      document.execCommand('insertText', false, event.detail.emoji.unicode);
+      emojiContainer.style.display = 'none';
+      updatePreview();
+    });
+
+    // ========== الوسائط ==========
+    const mediaInput = document.getElementById('media-input');
+    const mediaPreviews = document.getElementById('media-previews');
+
+    mediaInput.addEventListener('change', () => {
+      Array.from(mediaInput.files).forEach(file => {
+        mediaFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const card = document.createElement('div');
+          card.className = 'relative w-20 h-20 rounded overflow-hidden';
+          if (file.type.startsWith('image')) {
+            card.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover"><button class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">×</button>`;
+          } else {
+            card.innerHTML = `<video src="${e.target.result}" class="w-full h-full object-cover"></video><button class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">×</button>`;
+          }
+          card.querySelector('button').addEventListener('click', () => {
+            const index = mediaFiles.indexOf(file);
+            if (index > -1) mediaFiles.splice(index, 1);
+            card.remove();
+          });
+          mediaPreviews.appendChild(card);
+        };
+        reader.readAsDataURL(file);
+      });
+      mediaInput.value = '';
     });
 
     // ========== الأزرار ==========
     function renderButtons() {
       const container = document.getElementById('buttons-container');
       container.innerHTML = buttons.map((b, i) => `
-        <div class="btn-item">
-          <span>${b.icon} ${b.text}</span>
-          <button class="btn btn-red" style="width:auto; padding:5px 10px;" onclick="removeButton(${i})">🗑️</button>
+        <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded">
+          <span><i class="fa-solid ${b.icon} ml-1"></i>${b.text}</span>
+          <button onclick="window.removeButton(${i})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
         </div>
       `).join('');
     }
-
-    window.removeButton = function(index) {
-      buttons.splice(index, 1);
-      renderButtons();
-    };
+    window.removeButton = (i) => { buttons.splice(i,1); renderButtons(); };
 
     document.getElementById('add-button-btn').addEventListener('click', () => {
-      document.getElementById('button-form').style.display = 'block';
+      document.getElementById('button-form').classList.remove('hidden');
     });
-
     document.getElementById('cancel-button-btn').addEventListener('click', () => {
-      document.getElementById('button-form').style.display = 'none';
+      document.getElementById('button-form').classList.add('hidden');
     });
 
-    document.querySelectorAll('.color-dot').forEach(dot => {
-      dot.addEventListener('click', function() {
+    // اختيار اللون والأيقونة
+    document.querySelectorAll('.color-dot').forEach(d => {
+      d.addEventListener('click', function() {
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
         this.classList.add('selected');
         selectedColor = this.dataset.color;
       });
     });
-
-    document.querySelectorAll('.icon-option').forEach(icon => {
-      icon.addEventListener('click', function() {
+    document.querySelectorAll('.icon-option').forEach(ic => {
+      ic.addEventListener('click', function() {
         document.querySelectorAll('.icon-option').forEach(i => i.classList.remove('selected'));
         this.classList.add('selected');
         selectedIcon = this.dataset.icon;
@@ -288,84 +379,88 @@
     document.getElementById('save-button-btn').addEventListener('click', () => {
       const text = document.getElementById('btn-text').value.trim();
       const url = document.getElementById('btn-url').value.trim();
-      if (!text || !url) return toast('املأ جميع الحقول', false);
+      if (!text || !url) return toast('املأ الحقول', false);
       buttons.push({ text, url, color: selectedColor, icon: selectedIcon });
       renderButtons();
-      document.getElementById('button-form').style.display = 'none';
+      document.getElementById('button-form').classList.add('hidden');
       document.getElementById('btn-text').value = '';
       document.getElementById('btn-url').value = '';
+      updatePreview();
     });
+
+    // ========== المعاينة ==========
+    function updatePreview() {
+      document.getElementById('preview-content').innerHTML = editor.innerHTML;
+      const previewBtns = document.getElementById('preview-buttons');
+      previewBtns.innerHTML = buttons.map(b => 
+        `<a href="${b.url}" target="_blank" class="inline-block px-4 py-2 rounded text-white text-sm" style="background:${b.color}"><i class="fa-solid ${b.icon} ml-1"></i>${b.text}</a>`
+      ).join('');
+    }
+    editor.addEventListener('input', updatePreview);
 
     // ========== النشر ==========
     document.getElementById('publish-btn').addEventListener('click', async () => {
-      const text = document.getElementById('post-text').value.trim();
       const chatId = document.getElementById('channel-select').value;
-      
+      const text = editor.innerHTML.trim();
+
       if (!chatId) return toast('اختر قناة', false);
-      if (!text && !mediaFile) return toast('اكتب نصاً أو أرفق وسائط', false);
+      if (!text && mediaFiles.length === 0) return toast('أدخل محتوى', false);
 
       const replyMarkup = buttons.length > 0 ? {
-        inline_keyboard: buttons.map(b => [{ text: b.icon + ' ' + b.text, url: b.url }])
+        inline_keyboard: buttons.map(b => [{ text: b.text, url: b.url }])
       } : undefined;
 
       try {
-        if (mediaFile) {
-          // إرسال صورة أو فيديو مع التعليق
-          const formData = new FormData();
-          formData.append('chat_id', chatId);
-          formData.append('caption', text);
-          if (replyMarkup) formData.append('reply_markup', JSON.stringify(replyMarkup));
-          formData.append(mediaFile.type.startsWith('image/') ? 'photo' : 'video', mediaFile);
-
-          const res = await fetch(API + (mediaFile.type.startsWith('image/') ? '/sendPhoto' : '/sendVideo'), {
-            method: 'POST',
-            body: formData
-          });
-          const data = await res.json();
-          if (data.ok) {
-            toast('✅ تم النشر مع الوسائط!');
-            clearForm();
-          } else {
-            toast('❌ ' + (data.description || 'فشل النشر'), false);
+        if (mediaFiles.length > 0) {
+          // إرسال أول وسائط مع التعليق، ثم البقية
+          for (let i = 0; i < mediaFiles.length; i++) {
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            if (i === 0 && text) formData.append('caption', text);
+            if (i === mediaFiles.length - 1 && replyMarkup) formData.append('reply_markup', JSON.stringify(replyMarkup));
+            const method = mediaFiles[i].type.startsWith('image') ? 'sendPhoto' : 'sendVideo';
+            formData.append(method === 'sendPhoto' ? 'photo' : 'video', mediaFiles[i]);
+            await fetch(API + '/' + method, { method: 'POST', body: formData });
           }
+          toast('✅ تم النشر مع الوسائط');
         } else {
-          // إرسال نص فقط
           const payload = { chat_id: chatId, text, parse_mode: 'HTML' };
           if (replyMarkup) payload.reply_markup = replyMarkup;
-
           const res = await fetch(API + '/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
           const data = await res.json();
-          if (data.ok) {
-            toast('✅ تم النشر!');
-            clearForm();
-          } else {
-            toast('❌ ' + (data.description || 'فشل النشر'), false);
-          }
+          if (data.ok) toast('✅ تم النشر');
+          else throw new Error(data.description);
         }
-      } catch(e) {
-        toast('خطأ: ' + e.message, false);
-      }
+        // تنظيف
+        editor.innerHTML = '';
+        buttons = [];
+        renderButtons();
+        mediaFiles = [];
+        mediaPreviews.innerHTML = '';
+        updatePreview();
+        localStorage.removeItem(DRAFT_KEY);
+      } catch(e) { toast('❌ ' + e.message, false); }
     });
 
-    function clearForm() {
-      document.getElementById('post-text').value = '';
-      buttons = [];
-      renderButtons();
-      document.getElementById('channel-select').value = '';
-      mediaFile = null;
-      document.getElementById('media-file').value = '';
-      document.getElementById('media-preview-img').style.display = 'none';
-      document.getElementById('media-preview-vid').style.display = 'none';
-      document.getElementById('clear-media-btn').style.display = 'none';
-    }
-
-    // تهيئة
+    // تحميل أولي
     renderChannels();
     updateChannelSelect();
-  </script>
+    // استعادة آخر مسودة
+    const lastDraft = localStorage.getItem(DRAFT_KEY);
+    if (lastDraft) {
+      try {
+        const d = JSON.parse(lastDraft);
+        editor.innerHTML = d.html || '';
+        buttons = d.buttons || [];
+        renderButtons();
+        updatePreview();
+      } catch(e) {}
+    }
+  })();
+</script>
 </body>
 </html>
