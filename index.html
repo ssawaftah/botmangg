@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة النشر الشاملة</title>
+  <title>لوحة النشر المتقدمة</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial; background: #f0f2f5; padding: 15px; max-width: 500px; margin: auto; }
@@ -17,10 +17,12 @@
     .btn-green { background: #27ae60; }
     .btn-red { background: #e74c3c; }
     .btn-purple { background: #764ba2; }
-    input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; }
+    .btn-outline { background: transparent; border: 2px solid #0088cc; color: #0088cc; }
+    input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; }
+    .toolbar { display: flex; gap: 5px; margin: 5px 0; }
+    .toolbar button { flex: 1; padding: 8px; border: none; border-radius: 6px; background: #eee; cursor: pointer; font-weight: bold; }
+    .toolbar button:active { background: #ddd; }
     .channel-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: white; border-radius: 10px; margin: 5px 0; }
-    .channel-row span { font-weight: bold; }
-    .buttons-list { margin: 10px 0; }
     .btn-item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
     .color-dot { width: 30px; height: 30px; border-radius: 50%; display: inline-block; cursor: pointer; border: 2px solid transparent; margin: 0 5px; }
     .color-dot.selected { border-color: #333; }
@@ -29,6 +31,7 @@
     .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 20px; z-index: 100; display: none; }
     .toast.success { background: #27ae60; }
     .toast.error { background: #e74c3c; }
+    .media-preview { max-width: 100%; max-height: 200px; border-radius: 10px; margin: 10px 0; }
   </style>
 </head>
 <body>
@@ -48,10 +51,27 @@
 
   <!-- تبويب إنشاء المنشور -->
   <div id="panel-compose" class="panel">
+    <!-- شريط التنسيق -->
+    <div class="toolbar">
+      <button title="عريض" onclick="insertTag('b')">B</button>
+      <button title="مائل" onclick="insertTag('i')"><i>I</i></button>
+      <button title="رابط" onclick="insertLink()">🔗</button>
+    </div>
+
     <textarea id="post-text" rows="4" placeholder="نص المنشور..."></textarea>
-    
+
+    <!-- رفع وسائط -->
+    <div class="card" style="background: #f9f9f9;">
+      <h4>🖼️ إرفاق صورة أو فيديو</h4>
+      <input type="file" id="media-file" accept="image/*,video/*" style="margin-bottom:10px;">
+      <img id="media-preview-img" class="media-preview" style="display:none;">
+      <video id="media-preview-vid" class="media-preview" controls style="display:none; max-width:100%;"></video>
+      <button class="btn btn-outline" id="clear-media-btn" style="display:none;">إزالة الوسائط</button>
+    </div>
+
+    <!-- الأزرار -->
     <h4>🔘 أزرار المنشور</h4>
-    <div class="buttons-list" id="buttons-container"></div>
+    <div id="buttons-container"></div>
     <button class="btn btn-purple" id="add-button-btn">➕ إضافة زر</button>
 
     <div id="button-form" style="display:none;" class="card">
@@ -79,7 +99,7 @@
     </div>
 
     <h4>📢 اختر قناة للنشر</h4>
-    <select id="channel-select" style="width:100%; padding:12px; border-radius:8px; margin:10px 0;">
+    <select id="channel-select">
       <option value="">-- اختر قناة --</option>
     </select>
 
@@ -91,6 +111,11 @@
     const API = 'https://api.telegram.org/bot' + BOT_TOKEN;
     const CHANNELS_KEY = 'my_channels';
     
+    let buttons = [];
+    let selectedColor = '#0088cc';
+    let selectedIcon = '📤';
+    let mediaFile = null; // سيحمل الملف المرفوع
+
     // ========== دوال عامة ==========
     function toast(msg, isOk = true) {
       const t = document.getElementById('toast');
@@ -161,11 +186,6 @@
       } catch(e) { toast(e.message, false); }
     });
 
-    // ========== إنشاء المنشور ==========
-    let buttons = [];
-    let selectedColor = '#0088cc';
-    let selectedIcon = '📤';
-
     function updateChannelSelect() {
       const select = document.getElementById('channel-select');
       const channels = getChannels();
@@ -175,6 +195,57 @@
       });
     }
 
+    // ========== تنسيق النص ==========
+    window.insertTag = function(tag) {
+      const textarea = document.getElementById('post-text');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = textarea.value.substring(start, end);
+      const newText = `<${tag}>${selectedText || tag.toUpperCase()}</${tag}>`;
+      textarea.setRangeText(newText, start, end, 'end');
+      textarea.focus();
+    };
+
+    window.insertLink = function() {
+      const textarea = document.getElementById('post-text');
+      const url = prompt('أدخل الرابط:');
+      if (!url) return;
+      const text = prompt('نص الرابط:') || url;
+      const start = textarea.selectionStart;
+      textarea.setRangeText(`<a href="${url}">${text}</a>`, start, start, 'end');
+      textarea.focus();
+    };
+
+    // ========== إدارة الوسائط ==========
+    document.getElementById('media-file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      mediaFile = file;
+      const previewImg = document.getElementById('media-preview-img');
+      const previewVid = document.getElementById('media-preview-vid');
+      const clearBtn = document.getElementById('clear-media-btn');
+
+      if (file.type.startsWith('image/')) {
+        previewImg.src = URL.createObjectURL(file);
+        previewImg.style.display = 'block';
+        previewVid.style.display = 'none';
+      } else if (file.type.startsWith('video/')) {
+        previewVid.src = URL.createObjectURL(file);
+        previewVid.style.display = 'block';
+        previewImg.style.display = 'none';
+      }
+      clearBtn.style.display = 'block';
+    });
+
+    document.getElementById('clear-media-btn').addEventListener('click', () => {
+      mediaFile = null;
+      document.getElementById('media-file').value = '';
+      document.getElementById('media-preview-img').style.display = 'none';
+      document.getElementById('media-preview-vid').style.display = 'none';
+      document.getElementById('clear-media-btn').style.display = 'none';
+    });
+
+    // ========== الأزرار ==========
     function renderButtons() {
       const container = document.getElementById('buttons-container');
       container.innerHTML = buttons.map((b, i) => `
@@ -198,7 +269,6 @@
       document.getElementById('button-form').style.display = 'none';
     });
 
-    // اختيار اللون
     document.querySelectorAll('.color-dot').forEach(dot => {
       dot.addEventListener('click', function() {
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
@@ -207,7 +277,6 @@
       });
     });
 
-    // اختيار الأيقونة
     document.querySelectorAll('.icon-option').forEach(icon => {
       icon.addEventListener('click', function() {
         document.querySelectorAll('.icon-option').forEach(i => i.classList.remove('selected'));
@@ -232,44 +301,67 @@
       const text = document.getElementById('post-text').value.trim();
       const chatId = document.getElementById('channel-select').value;
       
-      if (!text) return toast('اكتب نص المنشور', false);
       if (!chatId) return toast('اختر قناة', false);
+      if (!text && !mediaFile) return toast('اكتب نصاً أو أرفق وسائط', false);
 
-      const payload = {
-        chat_id: chatId,
-        text: text,
-        parse_mode: 'HTML'
-      };
-
-      if (buttons.length > 0) {
-        payload.reply_markup = {
-          inline_keyboard: buttons.map(b => [{
-            text: b.icon + ' ' + b.text,
-            url: b.url
-          }])
-        };
-      }
+      const replyMarkup = buttons.length > 0 ? {
+        inline_keyboard: buttons.map(b => [{ text: b.icon + ' ' + b.text, url: b.url }])
+      } : undefined;
 
       try {
-        const res = await fetch(API + '/sendMessage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.ok) {
-          toast('✅ تم النشر بنجاح!');
-          document.getElementById('post-text').value = '';
-          buttons = [];
-          renderButtons();
-          document.getElementById('channel-select').value = '';
+        if (mediaFile) {
+          // إرسال صورة أو فيديو مع التعليق
+          const formData = new FormData();
+          formData.append('chat_id', chatId);
+          formData.append('caption', text);
+          if (replyMarkup) formData.append('reply_markup', JSON.stringify(replyMarkup));
+          formData.append(mediaFile.type.startsWith('image/') ? 'photo' : 'video', mediaFile);
+
+          const res = await fetch(API + (mediaFile.type.startsWith('image/') ? '/sendPhoto' : '/sendVideo'), {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.ok) {
+            toast('✅ تم النشر مع الوسائط!');
+            clearForm();
+          } else {
+            toast('❌ ' + (data.description || 'فشل النشر'), false);
+          }
         } else {
-          toast('❌ ' + (data.description || 'فشل النشر'), false);
+          // إرسال نص فقط
+          const payload = { chat_id: chatId, text, parse_mode: 'HTML' };
+          if (replyMarkup) payload.reply_markup = replyMarkup;
+
+          const res = await fetch(API + '/sendMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data.ok) {
+            toast('✅ تم النشر!');
+            clearForm();
+          } else {
+            toast('❌ ' + (data.description || 'فشل النشر'), false);
+          }
         }
       } catch(e) {
         toast('خطأ: ' + e.message, false);
       }
     });
+
+    function clearForm() {
+      document.getElementById('post-text').value = '';
+      buttons = [];
+      renderButtons();
+      document.getElementById('channel-select').value = '';
+      mediaFile = null;
+      document.getElementById('media-file').value = '';
+      document.getElementById('media-preview-img').style.display = 'none';
+      document.getElementById('media-preview-vid').style.display = 'none';
+      document.getElementById('clear-media-btn').style.display = 'none';
+    }
 
     // تهيئة
     renderChannels();
