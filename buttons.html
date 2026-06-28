@@ -3,153 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إضافة أزرار</title>
+  <title>الأزرار</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial; background: #f0f2f5; padding: 20px; max-width: 500px; margin: 0 auto; }
+    body { font-family: Arial; background: #f0f2f5; padding: 20px; max-width: 500px; margin: auto; }
     .header { background: #764ba2; color: white; padding: 20px; text-align: center; border-radius: 20px; margin-bottom: 20px; }
     .card { background: white; padding: 15px; border-radius: 10px; margin: 10px 0; }
     input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
     .btn { background: #764ba2; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin: 5px 0; font-size: 1em; }
-    .btn-outline { background: transparent; border: 2px solid #764ba2; color: #764ba2; }
     .btn-green { background: #27ae60; }
     .color-row { display: flex; gap: 10px; margin: 10px 0; }
-    .color-dot { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
-    .color-dot.sel { border-color: #333; }
+    .dot { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+    .dot.sel { border-color: #333; }
     .icon-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
-    .icon-box { width: 45px; height: 45px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; }
-    .icon-box.sel { background: #d5c4e8; border: 2px solid #764ba2; }
-    .btn-list { margin: 10px 0; }
-    .btn-item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
-    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 20px; z-index: 100; display: none; }
+    .icon { width: 45px; height: 45px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; }
+    .icon.sel { background: #d5c4e8; border: 2px solid #764ba2; }
+    .item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
   <div class="header"><h2>🔘 أزرار المنشور</h2></div>
-  <div class="toast" id="toast"></div>
-  
-  <div class="btn-list" id="btn-list"></div>
-  
-  <button class="btn" id="add-btn">➕ إضافة زر</button>
-  
-  <div class="card" id="form-card" style="display:none;">
-    <input type="text" id="btn-text" placeholder="نص الزر">
-    <input type="text" id="btn-url" placeholder="الرابط">
-    
-    <label>اللون:</label>
+  <div id="list"></div>
+  <button class="btn" id="add">➕ إضافة زر</button>
+
+  <div class="card" id="form" style="display:none;">
+    <input type="text" id="txt" placeholder="نص الزر">
+    <input type="text" id="url" placeholder="الرابط">
     <div class="color-row" id="colors">
-      <div class="color-dot sel" data-color="#0088cc" style="background:#0088cc;"></div>
-      <div class="color-dot" data-color="#e74c3c" style="background:#e74c3c;"></div>
-      <div class="color-dot" data-color="#27ae60" style="background:#27ae60;"></div>
-      <div class="color-dot" data-color="#f39c12" style="background:#f39c12;"></div>
+      <div class="dot sel" data-color="#0088cc" style="background:#0088cc;"></div>
+      <div class="dot" data-color="#e74c3c" style="background:#e74c3c;"></div>
+      <div class="dot" data-color="#27ae60" style="background:#27ae60;"></div>
+      <div class="dot" data-color="#f39c12" style="background:#f39c12;"></div>
     </div>
-
-    <label>الأيقونة:</label>
     <div class="icon-row" id="icons">
-      <span class="icon-box sel" data-icon="📤">📤</span>
-      <span class="icon-box" data-icon="🔗">🔗</span>
-      <span class="icon-box" data-icon="⬇️">⬇️</span>
-      <span class="icon-box" data-icon="▶️">▶️</span>
-      <span class="icon-box" data-icon="⭐">⭐</span>
-      <span class="icon-box" data-icon="❤️">❤️</span>
-      <span class="icon-box" data-icon="🔔">🔔</span>
-      <span class="icon-box" data-icon="🌐">🌐</span>
+      <span class="icon sel" data-icon="📤">📤</span>
+      <span class="icon" data-icon="🔗">🔗</span>
+      <span class="icon" data-icon="⬇️">⬇️</span>
+      <span class="icon" data-icon="▶️">▶️</span>
+      <span class="icon" data-icon="⭐">⭐</span>
+      <span class="icon" data-icon="❤️">❤️</span>
+      <span class="icon" data-icon="🌐">🌐</span>
     </div>
-
-    <button class="btn" id="save-btn">حفظ الزر</button>
-    <button class="btn btn-outline" id="cancel-btn">إلغاء</button>
+    <button class="btn" id="saveBtn">حفظ</button>
+    <button class="btn" id="cancelBtn" style="background:#999;">إلغاء</button>
   </div>
 
-  <button class="btn btn-green" id="done-btn" style="margin-top:20px; font-size:1.2em;">✅ حفظ الكل وإغلاق</button>
+  <button class="btn btn-green" id="done" style="margin-top:20px; font-size:1.2em;">✅ حفظ الكل وإغلاق</button>
 
   <script>
     const tg = window.Telegram?.WebApp;
-    
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.style.display = 'block';
-      setTimeout(() => t.style.display = 'none', 2000);
-    }
-
-    let buttons = [];
-    let selectedColor = '#0088cc';
-    let selectedIcon = '📤';
+    let btns = [];
+    let color = '#0088cc';
+    let icon = '📤';
 
     function render() {
-      document.getElementById('btn-list').innerHTML = buttons.map((b, i) => `
-        <div class="btn-item">
-          <span>${b.icon} ${b.text}</span>
-          <button onclick="del(${i})" style="border:none;background:none;cursor:pointer;font-size:1.2em;">🗑️</button>
-        </div>
+      document.getElementById('list').innerHTML = btns.map((b,i) => `
+        <div class="item"><span>${b.icon} ${b.text}</span>
+        <button onclick="del(${i})" style="border:none;background:none;cursor:pointer;">🗑️</button></div>
       `).join('');
     }
+    window.del = i => { btns.splice(i,1); render(); };
 
-    window.del = function(i) { buttons.splice(i, 1); render(); };
+    document.getElementById('add').onclick = () => {
+      document.getElementById('form').style.display = 'block';
+    };
+    document.getElementById('cancelBtn').onclick = () => {
+      document.getElementById('form').style.display = 'none';
+    };
 
-    document.getElementById('add-btn').addEventListener('click', () => {
-      document.getElementById('form-card').style.display = 'block';
-    });
+    document.getElementById('colors').onclick = e => {
+      const d = e.target.closest('.dot');
+      if (!d) return;
+      document.querySelectorAll('.dot').forEach(x => x.classList.remove('sel'));
+      d.classList.add('sel');
+      color = d.dataset.color;
+    };
 
-    document.getElementById('cancel-btn').addEventListener('click', () => {
-      document.getElementById('form-card').style.display = 'none';
-    });
+    document.getElementById('icons').onclick = e => {
+      const ic = e.target.closest('.icon');
+      if (!ic) return;
+      document.querySelectorAll('.icon').forEach(x => x.classList.remove('sel'));
+      ic.classList.add('sel');
+      icon = ic.dataset.icon;
+    };
 
-    document.getElementById('colors').addEventListener('click', e => {
-      const dot = e.target.closest('.color-dot');
-      if (!dot) return;
-      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('sel'));
-      dot.classList.add('sel');
-      selectedColor = dot.dataset.color;
-    });
-
-    document.getElementById('icons').addEventListener('click', e => {
-      const box = e.target.closest('.icon-box');
-      if (!box) return;
-      document.querySelectorAll('.icon-box').forEach(b => b.classList.remove('sel'));
-      box.classList.add('sel');
-      selectedIcon = box.dataset.icon;
-    });
-
-    document.getElementById('save-btn').addEventListener('click', () => {
-      const text = document.getElementById('btn-text').value.trim();
-      const url = document.getElementById('btn-url').value.trim();
-      if (!text || !url) {
-        showToast('املأ جميع الحقول');
-        return;
-      }
-      buttons.push({ text, url, color: selectedColor, icon: selectedIcon });
+    document.getElementById('saveBtn').onclick = () => {
+      const t = document.getElementById('txt').value.trim();
+      const u = document.getElementById('url').value.trim();
+      if (!t || !u) return alert('املأ الحقول');
+      btns.push({ text: t, url: u, color, icon });
       render();
-      document.getElementById('form-card').style.display = 'none';
-      document.getElementById('btn-text').value = '';
-      document.getElementById('btn-url').value = '';
-      showToast('تم إضافة الزر');
-    });
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('txt').value = '';
+      document.getElementById('url').value = '';
+    };
 
-    // زر الحفظ والإغلاق
-    document.getElementById('done-btn').addEventListener('click', () => {
-      if (buttons.length === 0) {
-        showToast('أضف زراً واحداً على الأقل');
-        return;
-      }
-
-      const data = JSON.stringify({ buttons: buttons });
-
-      // طريقة 1: استخدام Telegram WebApp API
-      if (tg && tg.sendData) {
-        try {
-          tg.sendData(data);
-          tg.close();
-        } catch(e) {
-          // إذا فشل، نستخدم الطريقة الثانية
-          showToast('تم حفظ ' + buttons.length + ' أزرار. يمكنك الإغلاق الآن.');
-        }
+    document.getElementById('done').onclick = () => {
+      if (!btns.length) return alert('أضف زراً');
+      if (tg?.sendData) {
+        tg.sendData(JSON.stringify({ buttons: btns }));
+        tg.close();
       } else {
-        // طريقة 2: عرض البيانات وطلب الإغلاق يدوياً
-        showToast('تم حفظ ' + buttons.length + ' أزرار ✅');
-        alert('الأزرار:\n' + JSON.stringify(buttons, null, 2));
+        alert('تم حفظ ' + btns.length + ' أزرار\nأغلق النافذة يدوياً');
       }
-    });
+    };
   </script>
 </body>
 </html>
