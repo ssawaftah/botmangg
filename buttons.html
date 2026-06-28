@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الأزرار</title>
+  <title>إضافة أزرار</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial; background: #f0f2f5; padding: 20px; max-width: 500px; margin: auto; }
     .header { background: #764ba2; color: white; padding: 20px; text-align: center; border-radius: 20px; margin-bottom: 20px; }
     .card { background: white; padding: 15px; border-radius: 10px; margin: 10px 0; }
@@ -13,12 +13,13 @@
     .btn { background: #764ba2; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin: 5px 0; font-size: 1em; }
     .btn-green { background: #27ae60; }
     .color-row { display: flex; gap: 10px; margin: 10px 0; }
-    .dot { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+    .dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
     .dot.sel { border-color: #333; }
     .icon-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
-    .icon { width: 45px; height: 45px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; }
-    .icon.sel { background: #d5c4e8; border: 2px solid #764ba2; }
-    .item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
+    .icon-box { width: 40px; height: 40px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3em; }
+    .icon-box.sel { background: #d5c4e8; border: 2px solid #764ba2; }
+    .btn-list { margin: 10px 0; }
+    .btn-item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
@@ -36,40 +37,36 @@
       <div class="dot" data-color="#f39c12" style="background:#f39c12;"></div>
     </div>
     <div class="icon-row" id="icons">
-      <span class="icon sel" data-icon="📤">📤</span>
-      <span class="icon" data-icon="🔗">🔗</span>
-      <span class="icon" data-icon="⬇️">⬇️</span>
-      <span class="icon" data-icon="▶️">▶️</span>
-      <span class="icon" data-icon="⭐">⭐</span>
-      <span class="icon" data-icon="❤️">❤️</span>
-      <span class="icon" data-icon="🌐">🌐</span>
+      <span class="icon-box sel" data-icon="📤">📤</span>
+      <span class="icon-box" data-icon="🔗">🔗</span>
+      <span class="icon-box" data-icon="⬇️">⬇️</span>
+      <span class="icon-box" data-icon="▶️">▶️</span>
+      <span class="icon-box" data-icon="⭐">⭐</span>
+      <span class="icon-box" data-icon="❤️">❤️</span>
+      <span class="icon-box" data-icon="🌐">🌐</span>
     </div>
     <button class="btn" id="saveBtn">حفظ</button>
     <button class="btn" id="cancelBtn" style="background:#999;">إلغاء</button>
   </div>
 
-  <button class="btn btn-green" id="done" style="margin-top:20px; font-size:1.2em;">✅ حفظ الكل وإغلاق</button>
+  <button class="btn btn-green" id="done" style="margin-top:20px;">✅ حفظ الكل وإغلاق</button>
 
   <script>
     const tg = window.Telegram?.WebApp;
-    let btns = [];
+    let buttons = [];
     let color = '#0088cc';
     let icon = '📤';
 
     function render() {
-      document.getElementById('list').innerHTML = btns.map((b,i) => `
-        <div class="item"><span>${b.icon} ${b.text}</span>
+      document.getElementById('list').innerHTML = buttons.map((b,i) => `
+        <div class="btn-item"><span>${b.icon} ${b.text}</span>
         <button onclick="del(${i})" style="border:none;background:none;cursor:pointer;">🗑️</button></div>
       `).join('');
     }
-    window.del = i => { btns.splice(i,1); render(); };
+    window.del = i => { buttons.splice(i,1); render(); };
 
-    document.getElementById('add').onclick = () => {
-      document.getElementById('form').style.display = 'block';
-    };
-    document.getElementById('cancelBtn').onclick = () => {
-      document.getElementById('form').style.display = 'none';
-    };
+    document.getElementById('add').onclick = () => document.getElementById('form').style.display = 'block';
+    document.getElementById('cancelBtn').onclick = () => document.getElementById('form').style.display = 'none';
 
     document.getElementById('colors').onclick = e => {
       const d = e.target.closest('.dot');
@@ -78,33 +75,30 @@
       d.classList.add('sel');
       color = d.dataset.color;
     };
-
     document.getElementById('icons').onclick = e => {
-      const ic = e.target.closest('.icon');
+      const ic = e.target.closest('.icon-box');
       if (!ic) return;
-      document.querySelectorAll('.icon').forEach(x => x.classList.remove('sel'));
+      document.querySelectorAll('.icon-box').forEach(x => x.classList.remove('sel'));
       ic.classList.add('sel');
       icon = ic.dataset.icon;
     };
-
     document.getElementById('saveBtn').onclick = () => {
       const t = document.getElementById('txt').value.trim();
       const u = document.getElementById('url').value.trim();
       if (!t || !u) return alert('املأ الحقول');
-      btns.push({ text: t, url: u, color, icon });
+      buttons.push({ text: t, url: u, color, icon });
       render();
       document.getElementById('form').style.display = 'none';
       document.getElementById('txt').value = '';
       document.getElementById('url').value = '';
     };
-
     document.getElementById('done').onclick = () => {
-      if (!btns.length) return alert('أضف زراً');
+      if (!buttons.length) return alert('أضف زراً');
       if (tg?.sendData) {
-        tg.sendData(JSON.stringify({ buttons: btns }));
+        tg.sendData(JSON.stringify({ buttons }));
         tg.close();
       } else {
-        alert('تم حفظ ' + btns.length + ' أزرار\nأغلق النافذة يدوياً');
+        alert('تم حفظ ' + buttons.length + ' أزرار. أغلق النافذة.');
       }
     };
   </script>
