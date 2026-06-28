@@ -3,27 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>لوحة النشر الاحترافية</title>
-  <!-- Font Awesome 6 للأيقونات -->
+  <title>لوحة النشر المتكاملة</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg: #f0f2f5;
       --card: #ffffff;
       --text: #1a1a1a;
-      --text-secondary: #666;
       --primary: #0088cc;
       --danger: #e74c3c;
       --success: #27ae60;
       --purple: #764ba2;
-      --border: #e0e0e0;
     }
     .dark {
       --bg: #1a1a2e;
       --card: #16213e;
       --text: #e0e0e0;
-      --text-secondary: #a0a0a0;
-      --border: #2a2a4a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -33,7 +28,6 @@
       padding: 20px;
       max-width: 500px;
       margin: 0 auto;
-      transition: background 0.3s, color 0.3s;
     }
     .header {
       display: flex;
@@ -41,32 +35,27 @@
       justify-content: space-between;
       margin-bottom: 20px;
     }
-    .header h2 {
-      font-size: 1.8em;
-      color: var(--primary);
-    }
+    .header h2 { font-size: 1.8em; color: var(--primary); }
     .tabs {
       display: flex;
       background: var(--card);
       border-radius: 15px;
       padding: 4px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     .tab {
       flex: 1;
       text-align: center;
       padding: 12px;
       cursor: pointer;
-      color: var(--text-secondary);
       border-radius: 12px;
       font-weight: bold;
+      color: #888;
       transition: 0.3s;
     }
     .tab.active {
       background: var(--primary);
       color: white;
-      box-shadow: 0 4px 10px rgba(0,136,204,0.3);
     }
     .panel { display: none; }
     .panel.active { display: block; }
@@ -76,19 +65,18 @@
       padding: 15px;
       border-radius: 15px;
       margin-bottom: 15px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     .btn {
-      display: inline-block;
-      padding: 12px 20px;
+      display: block;
+      width: 100%;
+      padding: 12px;
       border: none;
       border-radius: 10px;
       cursor: pointer;
       font-size: 1em;
       font-weight: bold;
-      transition: 0.2s;
       margin: 5px 0;
-      width: 100%;
+      text-align: center;
     }
     .btn-primary { background: var(--primary); color: white; }
     .btn-success { background: var(--success); color: white; }
@@ -99,7 +87,7 @@
       width: 100%;
       padding: 12px;
       margin: 8px 0;
-      border: 1px solid var(--border);
+      border: 1px solid #ddd;
       border-radius: 10px;
       font-size: 1em;
       background: var(--card);
@@ -131,7 +119,7 @@
     .icon-option {
       display: inline-block; padding: 8px; font-size: 1.5em; cursor: pointer; border-radius: 8px;
     }
-    .icon-option.selected { background: var(--border); }
+    .icon-option.selected { background: #ddd; }
     .toast {
       position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
       background: var(--success); color: white; padding: 10px 25px; border-radius: 20px;
@@ -139,9 +127,8 @@
     }
     .toast.error { background: var(--danger); }
     .media-preview { max-width: 100%; max-height: 150px; border-radius: 10px; margin: 5px; }
-    .toolbar { display: flex; gap: 5px; margin-bottom: 10px; }
     .toolbar button {
-      padding: 8px 12px; border: none; border-radius: 6px; background: var(--bg); cursor: pointer; font-weight: bold;
+      padding: 8px 12px; margin: 2px; border: none; border-radius: 6px; background: var(--bg); cursor: pointer; font-weight: bold;
     }
   </style>
 </head>
@@ -160,7 +147,7 @@
 
   <!-- تبويب القنوات -->
   <div id="panel-channels" class="panel active">
-    <div id="channel-list" class="space-y-2 mb-3"></div>
+    <div id="channel-list"></div>
     <input type="text" id="new-channel" placeholder="معرف القناة @username">
     <button class="btn btn-success" id="add-channel-btn"><i class="fa-solid fa-plus"></i> إضافة قناة</button>
   </div>
@@ -168,17 +155,17 @@
   <!-- تبويب الإنشاء -->
   <div id="panel-compose" class="panel">
     <div class="toolbar">
-      <button onclick="formatText('bold')"><b>B</b></button>
-      <button onclick="formatText('italic')"><i>I</i></button>
-      <button onclick="formatText('createLink')"><i class="fa-solid fa-link"></i></button>
+      <button onclick="format('bold')"><b>B</b></button>
+      <button onclick="format('italic')"><i>I</i></button>
+      <button onclick="format('createLink')"><i class="fa-solid fa-link"></i></button>
     </div>
-    <div id="editor" class="editor-content card" contenteditable="true" style="min-height:100px;"></div>
+    <div id="editor" class="card" contenteditable="true" style="min-height:100px;"></div>
     <style>.editor-content:empty::before { content: "اكتب المنشور هنا..."; color: #999; }</style>
 
     <div class="card">
       <h4>📎 الوسائط</h4>
       <div id="media-previews" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
-      <label class="btn btn-outline" style="margin-top:5px;">
+      <label class="btn btn-outline">
         <i class="fa-solid fa-plus"></i> إضافة وسائط
         <input type="file" id="media-input" multiple accept="image/*,video/*" hidden>
       </label>
@@ -193,7 +180,7 @@
     <div id="button-form" class="card" style="display:none;">
       <input type="text" id="btn-text" placeholder="نص الزر">
       <input type="text" id="btn-url" placeholder="رابط الزر">
-      <div style="margin:8px 0;">اللون:
+      <div>اللون:
         <span class="color-dot selected" data-color="#0088cc" style="background:#0088cc;"></span>
         <span class="color-dot" data-color="#e74c3c" style="background:#e74c3c;"></span>
         <span class="color-dot" data-color="#27ae60" style="background:#27ae60;"></span>
@@ -212,6 +199,13 @@
       <button class="btn btn-danger" id="cancel-button-btn">إلغاء</button>
     </div>
 
+    <!-- معاينة -->
+    <div class="card">
+      <h4>👁️ معاينة</h4>
+      <div id="preview-text"></div>
+      <div id="preview-buttons" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:5px;"></div>
+    </div>
+
     <div class="card">
       <h4>📤 النشر</h4>
       <select id="channel-select"><option value="">-- اختر قناة --</option></select>
@@ -223,11 +217,10 @@
 
   <script>
     (() => {
-      const TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4';
+      const TOKEN = '8991560932:AAEQUMZkOAdx7mj0fb41A5e4S0sEvnCdrE4'; // ⚠️ توكن مؤقت
       const API = 'https://api.telegram.org/bot' + TOKEN;
       const CH_KEY = 'my_channels';
 
-      // ========== دوال عامة ==========
       function toast(msg, ok=true) {
         const t = document.getElementById('toast');
         t.textContent = msg;
@@ -238,7 +231,7 @@
       function getChannels() { return JSON.parse(localStorage.getItem(CH_KEY) || '[]'); }
       function saveChannels(chs) { localStorage.setItem(CH_KEY, JSON.stringify(chs)); }
 
-      // ========== التبويبات ==========
+      // تبويبات
       document.querySelectorAll('.tab').forEach(t => {
         t.addEventListener('click', () => {
           document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
@@ -249,7 +242,7 @@
         });
       });
 
-      // ========== قنوات ==========
+      // قنوات
       function renderChannels() {
         const chs = getChannels();
         const c = document.getElementById('channel-list');
@@ -285,16 +278,18 @@
         getChannels().forEach(ch => sel.innerHTML += `<option value="${ch.chat_id}">${ch.title} (@${ch.username})</option>`);
       }
 
-      // ========== محرر ==========
-      window.formatText = (cmd) => {
+      // محرر
+      window.format = (cmd) => {
         if (cmd === 'createLink') {
           const url = prompt('الرابط:');
           if (url) document.execCommand(cmd, false, url);
         } else document.execCommand(cmd, false, null);
         document.getElementById('editor').focus();
+        updatePreview();
       };
+      document.getElementById('editor').addEventListener('input', updatePreview);
 
-      // ========== وسائط ==========
+      // وسائط
       let mediaFiles = [];
       document.getElementById('media-input').onchange = function() {
         Array.from(this.files).forEach(file => {
@@ -320,7 +315,7 @@
         this.value = '';
       };
 
-      // ========== أزرار ==========
+      // أزرار
       let buttons = [];
       let selColor = '#0088cc';
       let selIcon = '📤';
@@ -330,14 +325,12 @@
         document.querySelectorAll('[data-rm]').forEach(b => b.onclick = function() {
           buttons.splice(+this.dataset.rm,1);
           renderButtons();
+          updatePreview();
         });
+        updatePreview();
       }
-      document.getElementById('add-button-btn').onclick = () => {
-        document.getElementById('button-form').style.display = 'block';
-      };
-      document.getElementById('cancel-button-btn').onclick = () => {
-        document.getElementById('button-form').style.display = 'none';
-      };
+      document.getElementById('add-button-btn').onclick = () => document.getElementById('button-form').style.display = 'block';
+      document.getElementById('cancel-button-btn').onclick = () => document.getElementById('button-form').style.display = 'none';
       document.querySelectorAll('.color-dot').forEach(d => d.onclick = function() {
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
         this.classList.add('selected');
@@ -359,7 +352,15 @@
         document.getElementById('btn-url').value='';
       };
 
-      // ========== نشر ==========
+      // معاينة
+      function updatePreview() {
+        document.getElementById('preview-text').innerHTML = document.getElementById('editor').innerHTML;
+        document.getElementById('preview-buttons').innerHTML = buttons.map(b => 
+          `<a href="${b.url}" target="_blank" style="background:${b.color}; color:white; padding:8px 15px; border-radius:8px; text-decoration:none; display:inline-block;">${b.icon} ${b.text}</a>`
+        ).join('');
+      }
+
+      // نشر
       document.getElementById('publish-btn').onclick = async () => {
         const chatId = document.getElementById('channel-select').value;
         const text = document.getElementById('editor').innerHTML.trim();
@@ -400,10 +401,8 @@
         } catch(e) { toast('❌ ' + e.message, false); }
       };
 
-      // ========== Dark Mode ==========
-      document.getElementById('dark-toggle').onclick = () => {
-        document.documentElement.classList.toggle('dark');
-      };
+      // Dark Mode
+      document.getElementById('dark-toggle').onclick = () => document.documentElement.classList.toggle('dark');
 
       // بدء
       renderChannels();
